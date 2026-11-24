@@ -10,7 +10,7 @@
 | **Phase 2** | Secure Admin Auth, PBKDF2, Sessions, 8-role RBAC, Bootstrap & Admin Layout + Dashboard | Completed | PBKDF2-SHA256 hashing, SHA-256 hashed sessions, brute-force lockout, one-time token bootstrap, RBAC/CSRF guards, `AdminShell` & Executive Dashboard (`Module 1`) verified. |
 | **Phase 3** | Product, Category, Collection, R2 Media Library & Storefront Catalogue Connection | Completed | Admin Modules 2, 3, & 12, R2 magic-byte uploads + streaming, and full storefront D1 hydration verified. |
 | **Phase 4** | Server Pricing, Coupons, Checkout, Order Management, Tracking & Email Notifications | Completed | Authoritative integer RWF pricing, sequential `DODOX-YYYY-NNNNNN` checkout, reservation-on-confirmation only, verified `/track-order`, Resend email dispatcher & Admin Module 4 verified. |
-| **Phase 5** | Inventory Management, Customer Management & Discounts/Promotions | In Progress | Implementing Inventory (`Module 5`), Customers (`Module 6`), and Coupons/Promotions (`Module 7`). |
-| **Phase 6** | Atelier Enquiries, Contact, Newsletter, Journal/CMS & Website Settings | Pending | |
+| **Phase 5** | Inventory Management, Customer Management & Discounts/Promotions | Completed | Admin Modules 5, 6, & 7, stock adjustment ledger, supplier PO receiving, customer 360° CRM, and dynamic coupon management verified. |
+| **Phase 6** | Atelier Enquiries, Contact, Newsletter, Journal/CMS & Website Settings | In Progress | Implementing Modules 8, 9, 10, 11, & 14 + storefront form & content connections. |
 | **Phase 7** | Reports/Analytics, Staff Management, Audit Logs & Security Hardening | Pending | |
 | **Phase 8** | Automated Tests, Typecheck, Lint, Build, Local D1 & Cloudflare Verification | Pending | |
