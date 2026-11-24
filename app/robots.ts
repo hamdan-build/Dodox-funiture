@@ -9,7 +9,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/cart", "/checkout", "/checkout/confirmation", "/wishlist", "/track-order"],
+        disallow: [
+          "/admin",
+          "/api",
+          "/cart",
+          "/checkout",
+          "/checkout/confirmation",
+          "/wishlist",
+          "/track-order",
+        ],
       },
     ],
     sitemap: `${base}/sitemap.xml`,

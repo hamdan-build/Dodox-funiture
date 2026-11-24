@@ -7,8 +7,8 @@ import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { SearchOverlay } from "@/components/layout/search-overlay";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { StorefrontChrome } from "@/components/layout/storefront-chrome";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { StoreHydrator } from "@/components/store-hydrator";
 import { ToastRegion } from "@/components/ui/toast-region";
 import { siteConfig } from "@/data/site";
 import { organizationJsonLd } from "@/lib/seo";
@@ -111,29 +111,30 @@ export default function RootLayout({
   return (
     <html lang="en-RW" className={`${inter.variable} ${cormorant.variable}`}>
       <body>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-3 focus:text-[11px] focus:uppercase focus:tracking-[0.16em] focus:text-ivory"
+        <StorefrontChrome
+          announcement={<AnnouncementBar />}
+          header={<SiteHeader />}
+          footer={<SiteFooter />}
+          overlays={
+            <>
+              <MobileTabBar />
+              <CartDrawer />
+              <SearchOverlay />
+              <MobileNav />
+            </>
+          }
+          jsonLdScript={
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(organizationJsonLd),
+              }}
+            />
+          }
         >
-          Skip to content
-        </a>
-        <StoreHydrator />
-        <AnnouncementBar />
-        <SiteHeader />
-        <main id="main-content" className="min-h-[60vh]">
           {children}
-        </main>
-        <SiteFooter />
-        <MobileTabBar />
-        <CartDrawer />
-        <SearchOverlay />
-        <MobileNav />
+        </StorefrontChrome>
         <ToastRegion />
-        <script
-          type="application/ld+json"
-          // Organization structured data for search engines.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
       </body>
     </html>
   );
