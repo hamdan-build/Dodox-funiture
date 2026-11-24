@@ -30,7 +30,7 @@
     {
       "binding": "DB",
       "database_name": "dodox-furniture-dev",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "4f57403a-7d28-4ffc-81b1-50c0e5deb325",
       "migrations_dir": "migrations"
     }
   ],
@@ -70,7 +70,7 @@
         {
           "binding": "DB",
           "database_name": "dodox-furniture-prod",
-          "database_id": "<REPLACE_WITH_PRODUCTION_D1_DATABASE_ID>",
+          "database_id": "4f57403a-7d28-4ffc-81b1-50c0e5deb325",
           "migrations_dir": "migrations"
         }
       ],
