@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { CartView } from "@/components/cart/cart-view";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ServiceStrip } from "@/components/layout/service-strip";
+import { getFeaturedProductsFromDb } from "@/lib/server/services/catalogue.service";
 import { buildMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Shopping bag",
@@ -12,13 +15,14 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
-export default function CartPage() {
+export default async function CartPage() {
+  const recommended = await getFeaturedProductsFromDb(4);
   return (
     <>
       <div className="container-shell pt-5">
         <Breadcrumbs items={[{ label: "Shopping Bag" }]} />
       </div>
-      <CartView />
+      <CartView recommendedProducts={recommended} />
       <ServiceStrip />
     </>
   );

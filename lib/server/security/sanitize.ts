@@ -4,6 +4,34 @@ export function sanitizeText(input: string, maxLength = 4000): string {
   return input.replace(CONTROL_CHARS_RE, "").trim().slice(0, maxLength);
 }
 
+export function sanitizeMultilineText(input: string, maxLength = 4000): string {
+  return input
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .replace(/\r\n/g, "\n")
+    .trim()
+    .slice(0, maxLength);
+}
+
+export function normalizeEmail(email: string): string {
+  return sanitizeText(email, 160).toLowerCase();
+}
+
+export function normalizePhoneDigits(phone: string): string {
+  return phone.replace(/[^\d]/g, "");
+}
+
+/**
+ * Escapes CSV cell values and neutralizes spreadsheet formula injection (=, +, -, @, \t, \r).
+ */
+export function escapeCsvCell(value: unknown): string {
+  const raw = value === null || value === undefined ? "" : String(value);
+  const formulaSafe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  if (/[",\n\r]/.test(formulaSafe)) {
+    return `"${formulaSafe.replace(/"/g, '""')}"`;
+  }
+  return formulaSafe;
+}
+
 export function sanitizeFilename(filename: string): string {
   const cleaned = filename
     .replace(CONTROL_CHARS_RE, "")

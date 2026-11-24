@@ -21,10 +21,10 @@ import { CheckboxField, SelectField, TextAreaField, TextField } from "@/componen
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { careProtection, siteConfig } from "@/data/site";
-import { submitOrderRequest } from "@/lib/orders";
+import { submitOrderRequestToServer } from "@/lib/orders";
 import { computeTotals, variantSummary } from "@/lib/pricing";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validation";
-import { cn, formatRwf } from "@/lib/utils";
+import { cn, formatRwf, isDynamicMediaSrc } from "@/lib/utils";
 import { useMounted } from "@/hooks/use-mounted";
 import { useCartStore } from "@/store/cart";
 import { useUiStore } from "@/store/ui";
@@ -73,12 +73,18 @@ export function CheckoutView() {
   const mounted = useMounted();
   const items = useCartStore((state) => state.items);
   const promoCode = useCartStore((state) => state.promoCode);
+  const serverPromo = useCartStore((state) => state.serverPromo);
   const care = useCartStore((state) => state.careProtection);
   const clearCart = useCartStore((state) => state.clear);
   const pushToast = useUiStore((state) => state.pushToast);
   const [submitting, setSubmitting] = useState(false);
 
-  const totals = computeTotals({ items, promoCode, careProtection: care });
+  const totals = computeTotals({
+    items,
+    promoCode,
+    serverPromo,
+    careProtection: care,
+  });
 
   const {
     register,
@@ -134,7 +140,7 @@ export function CheckoutView() {
   const onSubmit = async (values: CheckoutInput) => {
     setSubmitting(true);
     try {
-      const order = await submitOrderRequest({
+      const order = await submitOrderRequestToServer({
         customer: {
           firstName: values.firstName,
           lastName: values.lastName,
@@ -148,14 +154,13 @@ export function CheckoutView() {
           notes: values.notes || undefined,
         },
         lines: items.map((item) => ({
-          name: item.name,
           slug: item.slug,
-          image: item.image,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          variantSummary: variantSummary(item.selections),
+          selections: item.selections.map((s) => ({
+            groupId: s.groupId,
+            optionId: s.optionId,
+          })),
         })),
-        totals,
         careProtection: care,
         promoCode: promoCode ?? undefined,
       });
@@ -163,15 +168,18 @@ export function CheckoutView() {
       clearCart();
       pushToast({
         title: "Order request received",
-        description: `Reference ${order.reference}. This is a frontend demonstration — no order was sent to a backend.`,
+        description: `Reference ${order.reference}. Our Kigali concierge will confirm availability and local payment directly.`,
         variant: "success",
       });
-      router.push(`/checkout/confirmation?ref=${order.reference}`);
-    } catch {
+      router.push(`/checkout/confirmation?ref=${encodeURIComponent(order.reference)}`);
+    } catch (err) {
       setSubmitting(false);
       pushToast({
         title: "Could not submit the request",
-        description: "Please try again, or contact the atelier directly.",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Please try again, or contact the atelier directly.",
         variant: "error",
       });
     }
@@ -359,6 +367,7 @@ export function CheckoutView() {
                         src={item.image}
                         alt={item.name}
                         fill
+                        unoptimized={isDynamicMediaSrc(item.image)}
                         sizes="56px"
                         className="object-cover"
                       />
@@ -409,8 +418,8 @@ export function CheckoutView() {
               )}
             </button>
             <p className="mt-2.5 text-center text-[9.5px] leading-relaxed text-muted">
-              Demonstration only — order requests are saved in this browser and are
-              not transmitted to a backend.
+              No payment is collected online — your order request is recorded securely
+              with DODOX Kigali for personal concierge confirmation.
             </p>
           </section>
         </div>
@@ -471,7 +480,7 @@ export function CheckoutView() {
               </p>
               <p className="mt-3 flex items-start gap-2 text-[10px] leading-relaxed text-muted">
                 <Sparkles size={12} strokeWidth={1.4} className="mt-0.5 shrink-0 text-bronze" />
-                Sample storefront: pricing and lead times are demonstration data.
+                Prices are verified on our server in integer RWF upon submission.
               </p>
             </div>
           </div>

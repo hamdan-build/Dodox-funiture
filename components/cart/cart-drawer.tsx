@@ -6,7 +6,7 @@ import { ShoppingBag } from "lucide-react";
 import { Drawer } from "@/components/ui/drawer";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { buttonStyles } from "@/components/ui/button";
-import { formatRwf } from "@/lib/utils";
+import { formatRwf, isDynamicMediaSrc } from "@/lib/utils";
 import { computeTotals, variantSummary } from "@/lib/pricing";
 import { useMounted } from "@/hooks/use-mounted";
 import { useCartStore } from "@/store/cart";
@@ -19,10 +19,16 @@ export function CartDrawer() {
   const mounted = useMounted();
   const items = useCartStore((state) => state.items);
   const promoCode = useCartStore((state) => state.promoCode);
+  const serverPromo = useCartStore((state) => state.serverPromo);
   const care = useCartStore((state) => state.careProtection);
   const removeItem = useCartStore((state) => state.removeItem);
 
-  const totals = computeTotals({ items, promoCode, careProtection: care });
+  const totals = computeTotals({
+    items,
+    promoCode,
+    serverPromo,
+    careProtection: care,
+  });
   const visibleItems = mounted ? items : [];
 
   return (
@@ -109,6 +115,7 @@ export function CartDrawer() {
                     src={item.image}
                     alt={item.name}
                     fill
+                    unoptimized={isDynamicMediaSrc(item.image)}
                     sizes="80px"
                     className="object-cover"
                   />

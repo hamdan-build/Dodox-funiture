@@ -18,15 +18,15 @@ import { buttonStyles } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { siteConfig, whatsappLink } from "@/data/site";
-import { getOrder } from "@/lib/orders";
-import { formatDate, formatRwf } from "@/lib/utils";
+import { fetchVerifiedOrder } from "@/lib/orders";
+import { formatDate, formatRwf, isDynamicMediaSrc } from "@/lib/utils";
 import type { OrderRecord } from "@/types";
 
 const timeline = [
   {
     icon: ClipboardCheck,
     title: "Request received",
-    description: "Your order request is logged in this browser for the demo.",
+    description: "Your order request is recorded securely with the Kigali atelier.",
   },
   {
     icon: CircleDot,
@@ -48,13 +48,29 @@ const timeline = [
 export function OrderConfirmation() {
   const searchParams = useSearchParams();
   const reference = searchParams.get("ref") ?? "";
+  const tokenParam = searchParams.get("token") ?? undefined;
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (reference) setOrder(getOrder(reference));
-    setLoaded(true);
-  }, [reference]);
+    let cancelled = false;
+    if (!reference) {
+      setLoaded(true);
+      return;
+    }
+    fetchVerifiedOrder({
+      reference,
+      trackingToken: tokenParam,
+    }).then((found) => {
+      if (!cancelled) {
+        setOrder(found);
+        setLoaded(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [reference, tokenParam]);
 
   if (!loaded) {
     return (
@@ -70,16 +86,16 @@ export function OrderConfirmation() {
       <div className="container-shell py-12 sm:py-16">
         <EmptyState
           icon={<ClipboardCheck size={20} strokeWidth={1.3} />}
-          title="We could not find that order request"
-          description="Order requests are stored in this browser only. If you cleared your browsing data or opened this link elsewhere, the record will not be available."
-          action="Return to the collection"
-          actionHref="/shop"
+          title="Verify your order request to view details"
+          description="For your privacy, order confirmations opened in a new session require email or telephone verification."
+          action="Track your order request"
+          actionHref={reference ? `/track-order?ref=${encodeURIComponent(reference)}` : "/track-order"}
           secondary={
             <Link
-              href="/track-order"
+              href="/shop"
               className="text-[10px] uppercase tracking-[0.14em] text-bronze underline decoration-line underline-offset-4"
             >
-              Try order tracking
+              Return to the collection
             </Link>
           }
         />
@@ -175,6 +191,7 @@ export function OrderConfirmation() {
                         src={line.image}
                         alt={line.name}
                         fill
+                        unoptimized={isDynamicMediaSrc(line.image)}
                         sizes="56px"
                         className="object-cover"
                       />
@@ -265,9 +282,9 @@ export function OrderConfirmation() {
 
             <div className="border border-line/60 bg-shell/45 p-4">
               <p className="text-[10px] leading-relaxed text-ink-soft/80">
-                This confirmation is a demonstration record stored in your browser.
-                Live order confirmations, payments and fulfilment require backend
-                integration.
+                No payment is collected online. A DODOX Kigali concierge will
+                review availability, lead time, and local payment arrangements
+                with you directly.
               </p>
             </div>
 

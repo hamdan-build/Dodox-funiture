@@ -1,91 +1,146 @@
-import type { OrderRecord } from "@/types";
+import type { CustomerDetails, OrderRecord } from "@/types";
 
-/**
- * Order-request persistence for the frontend demonstration.
- *
- * The order request is intentionally isolated behind this module so a real
- * backend (email service, ERP, headless commerce API) can be wired in later
- * without touching the checkout UI. Nothing here contacts a server and no
- * payment data is collected or stored.
- */
+const TOKEN_SESSION_KEY = "dodox.order_tokens.v1";
 
-const STORAGE_KEY = "dodox.orders.v1";
-
-const canUseStorage = () =>
-  typeof window !== "undefined" && typeof window.localStorage !== "undefined";
-
-const readAll = (): Record<string, OrderRecord> => {
-  if (!canUseStorage()) return {};
+function saveSessionTrackingToken(reference: string, token: string) {
+  if (typeof window === "undefined") return;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw) as Record<string, OrderRecord>;
+    const raw = window.sessionStorage.getItem(TOKEN_SESSION_KEY);
+    const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+    map[reference.toUpperCase()] = token;
+    window.sessionStorage.setItem(TOKEN_SESSION_KEY, JSON.stringify(map));
   } catch {
-    return {};
+    // Ignore private-browsing storage errors
   }
-};
-
-const writeAll = (orders: Record<string, OrderRecord>) => {
-  if (!canUseStorage()) return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  } catch {
-    // Storage can be unavailable in private browsing — the UI still works.
-  }
-};
-
-export function generateOrderReference(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let token = "";
-  for (let index = 0; index < 6; index += 1) {
-    token += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return `DODO-${token}`;
 }
 
-export async function submitOrderRequest(
-  order: Omit<OrderRecord, "reference" | "createdAt" | "status">,
-): Promise<OrderRecord> {
-  const record: OrderRecord = {
-    ...order,
-    reference: generateOrderReference(),
-    createdAt: new Date().toISOString(),
-    status: "received",
+export function getSessionTrackingToken(reference: string): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const raw = window.sessionStorage.getItem(TOKEN_SESSION_KEY);
+    if (!raw) return undefined;
+    const map = JSON.parse(raw) as Record<string, string>;
+    return map[reference.trim().toUpperCase()];
+  } catch {
+    return undefined;
+  }
+}
+
+export async function submitOrderRequestToServer(params: {
+  customer: CustomerDetails;
+  lines: Array<{
+    slug: string;
+    quantity: number;
+    selections: Array<{ groupId: string; optionId: string }>;
+  }>;
+  careProtection: boolean;
+  promoCode?: string | null;
+  turnstileToken?: string;
+}): Promise<OrderRecord> {
+  const response = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      customer: params.customer,
+      lines: params.lines,
+      careProtection: params.careProtection,
+      promoCode: params.promoCode ?? null,
+      consent: true,
+      turnstileToken: params.turnstileToken,
+    }),
+  });
+
+  const payload = (await response.json()) as {
+    ok: boolean;
+    data?: { order: OrderRecord };
+    error?: { message: string };
   };
-  const orders = readAll();
-  orders[record.reference] = record;
-  writeAll(orders);
-  // Simulated network latency so loading states can be reviewed.
-  await new Promise((resolve) => setTimeout(resolve, 700));
-  return record;
+
+  if (!response.ok || !payload.ok || !payload.data?.order) {
+    throw new Error(
+      payload.error?.message || "Could not submit your order request.",
+    );
+  }
+
+  const order = payload.data.order;
+  if (order.trackingToken) {
+    saveSessionTrackingToken(order.reference, order.trackingToken);
+  }
+  return order;
 }
 
-export function getOrder(reference: string): OrderRecord | null {
-  const orders = readAll();
-  const normalised = reference.trim().toUpperCase();
-  return orders[normalised] ?? null;
+export async function fetchVerifiedOrder(params: {
+  reference: string;
+  contact?: string;
+  trackingToken?: string;
+}): Promise<OrderRecord | null> {
+  const response = await fetch("/api/orders/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      reference: params.reference.trim().toUpperCase(),
+      contact: params.contact?.trim() || undefined,
+      trackingToken:
+        params.trackingToken || getSessionTrackingToken(params.reference),
+    }),
+  });
+
+  if (!response.ok) return null;
+  const payload = (await response.json()) as {
+    ok: boolean;
+    data?: {
+      order: OrderRecord & {
+        history?: Array<{
+          status: string;
+          label?: string;
+          note?: string | null;
+          createdAt: string;
+        }>;
+      };
+    };
+  };
+  if (!payload.ok || !payload.data?.order) return null;
+  return {
+    ...payload.data.order,
+    statusHistory: payload.data.order.history,
+  };
 }
 
-export function findOrderForCustomer(
-  reference: string,
-  contact: string,
-): OrderRecord | null {
-  const order = getOrder(reference);
-  if (!order) return null;
-  const normalised = contact.trim().toLowerCase();
-  const email = order.customer.email.toLowerCase();
-  const phone = order.customer.phone.replace(/[^\d]/g, "");
-  const digits = normalised.replace(/[^\d]/g, "");
-  if (normalised === email) return order;
-  if (digits && digits === phone) return order;
-  return null;
-}
+export async function validateCouponWithServer(
+  code: string,
+  subtotal: number,
+): Promise<{
+  code: string;
+  label: string;
+  description: string;
+  amount: number;
+}> {
+  const response = await fetch("/api/orders/quote", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mode: "coupon",
+      code: code.trim(),
+      subtotal,
+    }),
+  });
+  const payload = (await response.json()) as {
+    ok: boolean;
+    data?: {
+      coupon: {
+        code: string;
+        label: string;
+        description: string;
+        amount: number;
+      };
+    };
+    error?: { message: string };
+  };
 
-export function latestOrder(): OrderRecord | null {
-  const orders = readAll();
-  const list = Object.values(orders).sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-  return list[0] ?? null;
+  if (!response.ok || !payload.ok || !payload.data?.coupon) {
+    throw new Error(
+      payload.error?.message || "That code is not active or recognised.",
+    );
+  }
+  return payload.data.coupon;
 }

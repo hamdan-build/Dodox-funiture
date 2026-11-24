@@ -77,29 +77,51 @@ assert.ok(!related.some(p => p.slug === sofa.slug));
 console.log("search + related products OK");
 
 async function main() {
-// --- Orders (localStorage mock) ---
-const store = new Map<string, string>();
-Object.defineProperty(globalThis, "window", { value: { localStorage: {
-  getItem: (k: string) => store.get(k) ?? null,
-  setItem: (k: string, v: string) => store.set(k, v),
-  removeItem: (k: string) => store.delete(k),
-}}, configurable: true });
-const { submitOrderRequest, getOrder, findOrderForCustomer } = await import("../lib/orders");
-const order = await submitOrderRequest({
-  customer: { firstName: "Test", lastName: "Client", email: "test@example.com", phone: "+250 788 111 222", city: "Kigali", district: "Gasabo", address: "12 Test Road", deliveryMethod: "kigali-white-glove" },
-  lines: [{ name: sofa.name, slug: sofa.slug, image: sofa.images[0].src, quantity: 1, unitPrice: 1450000, variantSummary: "Warm Sand" }],
-  totals: withPromo, careProtection: true, promoCode: "ATELIER10",
-});
-assert.match(order.reference, /^DODO-[A-Z2-9]{6}$/);
-assert.equal(order.status, "received");
-assert.ok(getOrder(order.reference.toLowerCase()));
-assert.ok(findOrderForCustomer(order.reference, "TEST@example.com"));
-assert.ok(findOrderForCustomer(order.reference, "+250788111222"));
-assert.equal(findOrderForCustomer(order.reference, "other@example.com"), null);
-assert.equal(getOrder("DODO-NOPE00"), null);
-console.log(`order request flow OK (${order.reference})`);
+  const { installTestCloudflareEnv } = await import("../tests/helpers/sqlite-d1");
+  const { createOrderRequest, lookupOrderForCustomer } = await import(
+    "../lib/server/services/order.service"
+  );
+  installTestCloudflareEnv();
 
-console.log("\nALL LOGIC CHECKS PASSED");
+  const order = await createOrderRequest({
+    customer: {
+      firstName: "Test",
+      lastName: "Client",
+      email: "test@example.com",
+      phone: "+250 788 111 222",
+      city: "Kigali",
+      district: "Gasabo",
+      address: "12 Test Road",
+      deliveryMethod: "kigali-white-glove",
+    },
+    lines: [{ slug: sofa.slug, quantity: 1, selections: [] }],
+    careProtection: true,
+    promoCode: "ATELIER10",
+  });
+  assert.match(order.reference, /^DODOX-\d{4}-\d{6}$/);
+  assert.equal(order.status, "received");
+  assert.ok(
+    await lookupOrderForCustomer({
+      reference: order.reference.toLowerCase(),
+      contact: "TEST@example.com",
+    }),
+  );
+  assert.ok(
+    await lookupOrderForCustomer({
+      reference: order.reference,
+      contact: "+250788111222",
+    }),
+  );
+  assert.equal(
+    await lookupOrderForCustomer({
+      reference: order.reference,
+      contact: "other@example.com",
+    }),
+    null,
+  );
+  console.log(`D1 order request flow OK (${order.reference})`);
+
+  console.log("\nALL LOGIC CHECKS PASSED");
 }
 
 main().catch((error) => {

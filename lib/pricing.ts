@@ -83,14 +83,23 @@ export const computeDiscount = (
 export const computeTotals = ({
   items,
   promoCode,
+  serverPromo,
   careProtection,
 }: {
   items: CartItem[];
   promoCode: string | null;
+  serverPromo?: AppliedPromo | null;
   careProtection: boolean;
 }): CartTotals => {
   const subtotal = cartSubtotal(items);
-  const discount = computeDiscount(promoCode, subtotal)?.amount ?? 0;
+  const applied =
+    serverPromo && serverPromo.code === promoCode
+      ? {
+          ...serverPromo,
+          amount: Math.min(serverPromo.amount, subtotal),
+        }
+      : computeDiscount(promoCode, subtotal);
+  const discount = applied?.amount ?? 0;
   const care = careProtection && items.length > 0 ? careProtectionConfig.price : 0;
   const logistics = 0;
   const total = Math.max(0, subtotal - discount + care + logistics);

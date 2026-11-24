@@ -8,9 +8,9 @@
 | **Audit** | Full repository inspection & 6 architecture/spec docs | Completed | `PROJECT_AUDIT.md`, `SYSTEM_ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `ADMIN_MODULES.md`, `DEPLOYMENT_CLOUDFLARE.md`, `IMPLEMENTATION_ROADMAP.md` created. |
 | **Phase 1** | Foundation, Cloudflare config, 54-table D1 schema, migrations, seed & core server architecture | Completed | `wrangler.jsonc`, `open-next.config.ts`, `drizzle.config.ts`, `migrations/0000_romantic_sugar_man.sql`, D1 seed, rate limiter, CSRF/Turnstile/sanitize helpers & Phase 1 tests verified. |
 | **Phase 2** | Secure Admin Auth, PBKDF2, Sessions, 8-role RBAC, Bootstrap & Admin Layout + Dashboard | Completed | PBKDF2-SHA256 hashing, SHA-256 hashed sessions, brute-force lockout, one-time token bootstrap, RBAC/CSRF guards, `AdminShell` & Executive Dashboard (`Module 1`) verified. |
-| **Phase 3** | Product, Category, Collection, R2 Media Library & Storefront Catalogue Connection | In Progress | Implementing R2 storage, Media Library (`Module 12`), Product CRUD (`Module 2`), Category/Collection CRUD (`Module 3`), and storefront D1 connection. |
-| **Phase 4** | Server Pricing, Coupons, Checkout, Order Management, Tracking & Email Notifications | Pending | |
-| **Phase 5** | Inventory Management & Customer Management | Pending | |
+| **Phase 3** | Product, Category, Collection, R2 Media Library & Storefront Catalogue Connection | Completed | Admin Modules 2, 3, & 12, R2 magic-byte uploads + streaming, and full storefront D1 hydration verified. |
+| **Phase 4** | Server Pricing, Coupons, Checkout, Order Management, Tracking & Email Notifications | Completed | Authoritative integer RWF pricing, sequential `DODOX-YYYY-NNNNNN` checkout, reservation-on-confirmation only, verified `/track-order`, Resend email dispatcher & Admin Module 4 verified. |
+| **Phase 5** | Inventory Management, Customer Management & Discounts/Promotions | In Progress | Implementing Inventory (`Module 5`), Customers (`Module 6`), and Coupons/Promotions (`Module 7`). |
 | **Phase 6** | Atelier Enquiries, Contact, Newsletter, Journal/CMS & Website Settings | Pending | |
 | **Phase 7** | Reports/Analytics, Staff Management, Audit Logs & Security Hardening | Pending | |
 | **Phase 8** | Automated Tests, Typecheck, Lint, Build, Local D1 & Cloudflare Verification | Pending | |

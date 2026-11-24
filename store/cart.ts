@@ -2,18 +2,19 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { CartItem } from "@/types";
+import type { AppliedPromo, CartItem } from "@/types";
 
 interface CartState {
   items: CartItem[];
   promoCode: string | null;
+  serverPromo: AppliedPromo | null;
   careProtection: boolean;
   addItem: (item: CartItem) => void;
   removeItem: (key: string) => void;
   setQuantity: (key: string, quantity: number) => void;
   increment: (key: string) => void;
   decrement: (key: string) => void;
-  setPromoCode: (code: string | null) => void;
+  setPromoCode: (code: string | null, verified?: AppliedPromo | null) => void;
   setCareProtection: (enabled: boolean) => void;
   clear: () => void;
 }
@@ -23,6 +24,7 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       promoCode: null,
+      serverPromo: null,
       careProtection: false,
 
       addItem: (item) =>
@@ -76,11 +78,13 @@ export const useCartStore = create<CartState>()(
             .filter((entry) => entry.quantity > 0),
         })),
 
-      setPromoCode: (code) => set({ promoCode: code }),
+      setPromoCode: (code, verified = null) =>
+        set({ promoCode: code, serverPromo: code ? verified : null }),
 
       setCareProtection: (enabled) => set({ careProtection: enabled }),
 
-      clear: () => set({ items: [], promoCode: null, careProtection: false }),
+      clear: () =>
+        set({ items: [], promoCode: null, serverPromo: null, careProtection: false }),
     }),
     {
       name: "dodox.cart.v1",
@@ -89,6 +93,7 @@ export const useCartStore = create<CartState>()(
       partialize: (state) => ({
         items: state.items,
         promoCode: state.promoCode,
+        serverPromo: state.serverPromo,
         careProtection: state.careProtection,
       }),
     },

@@ -9,7 +9,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Track an order request",
   description:
-    "Look up a DODOX order request using your reference and contact details. Demo tracking reads locally stored requests only.",
+    "Look up a DODOX order request using your reference and verified contact details.",
   path: "/track-order",
   noIndex: true,
 });

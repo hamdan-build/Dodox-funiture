@@ -21,29 +21,26 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ProductCard } from "@/components/catalog/product-card";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { Skeleton } from "@/components/ui/skeleton";
-import { careProtection, demoPromoCodes, privilegeThreshold, siteConfig, whatsappLink } from "@/data/site";
-import { getProductsBySlugs } from "@/data/products";
-import { toWishlistItem } from "@/lib/cart";
+import { careProtection, privilegeThreshold, siteConfig, whatsappLink } from "@/data/site";
 import { availabilityLabels } from "@/lib/catalog";
+import { validateCouponWithServer } from "@/lib/orders";
 import { computeDiscount, computeTotals, variantSummary } from "@/lib/pricing";
-import { cn, formatRwf } from "@/lib/utils";
+import { cn, formatRwf, isDynamicMediaSrc } from "@/lib/utils";
 import { useMounted } from "@/hooks/use-mounted";
 import { useCartStore } from "@/store/cart";
 import { useUiStore } from "@/store/ui";
 import { useWishlistStore } from "@/store/wishlist";
-import { productMap } from "@/data/products";
+import type { Product } from "@/types";
 
-const recommendedSlugs = [
-  "nyarutarama-curved-loveseat",
-  "kiziwa-linen-cushion",
-  "gitaraama-sculptural-vessel",
-  "kibuye-counter-stool",
-];
-
-export function CartView() {
+export function CartView({
+  recommendedProducts = [],
+}: {
+  recommendedProducts?: Product[];
+}) {
   const mounted = useMounted();
   const items = useCartStore((state) => state.items);
   const promoCode = useCartStore((state) => state.promoCode);
+  const serverPromo = useCartStore((state) => state.serverPromo);
   const care = useCartStore((state) => state.careProtection);
   const setQuantity = useCartStore((state) => state.setQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -55,12 +52,21 @@ export function CartView() {
 
   const [codeInput, setCodeInput] = useState("");
   const [codeError, setCodeError] = useState("");
+  const [applyingCode, setApplyingCode] = useState(false);
 
-  const totals = computeTotals({ items, promoCode, careProtection: care });
-  const appliedPromo = computeDiscount(promoCode, totals.subtotal);
+  const totals = computeTotals({
+    items,
+    promoCode,
+    serverPromo,
+    careProtection: care,
+  });
+  const appliedPromo =
+    serverPromo && serverPromo.code === promoCode
+      ? serverPromo
+      : computeDiscount(promoCode, totals.subtotal);
   const progress = Math.min(100, Math.round((totals.subtotal / privilegeThreshold) * 100));
   const remaining = Math.max(0, privilegeThreshold - totals.subtotal);
-  const recommended = getProductsBySlugs(recommendedSlugs);
+  const recommended = recommendedProducts;
 
   if (!mounted) {
     return (
@@ -109,36 +115,51 @@ export function CartView() {
     );
   }
 
-  const applyCode = (event: React.FormEvent) => {
+  const applyCode = async (event: React.FormEvent) => {
     event.preventDefault();
-    const promo = demoPromoCodes.find(
-      (entry) => entry.code.toLowerCase() === codeInput.trim().toLowerCase(),
-    );
-    if (!promo) {
-      setCodeError("That code is not recognised. Demo codes: WELCOMEKIGALI, ATELIER10.");
-      return;
-    }
-    if (promo.minimumSubtotal && totals.subtotal < promo.minimumSubtotal) {
-      setCodeError(
-        `${promo.code} applies to orders above ${formatRwf(promo.minimumSubtotal)}.`,
-      );
-      return;
-    }
-    setPromoCode(promo.code);
-    setCodeInput("");
+    if (!codeInput.trim()) return;
+    setApplyingCode(true);
     setCodeError("");
-    pushToast({
-      title: `${promo.code} applied`,
-      description: promo.description,
-      variant: "success",
-    });
+    try {
+      const verified = await validateCouponWithServer(
+        codeInput.trim(),
+        totals.subtotal,
+      );
+      setPromoCode(verified.code, {
+        code: verified.code,
+        label: verified.label,
+        amount: verified.amount,
+      });
+      setCodeInput("");
+      pushToast({
+        title: `${verified.code} applied`,
+        description: verified.description || verified.label,
+        variant: "success",
+      });
+    } catch (err) {
+      setCodeError(
+        err instanceof Error
+          ? err.message
+          : "That code is not recognised or active.",
+      );
+    } finally {
+      setApplyingCode(false);
+    }
   };
 
   const handleSaveForLater = (key: string) => {
     const item = items.find((entry) => entry.key === key);
     if (!item) return;
-    const product = productMap[item.slug];
-    if (product) addWishlist(toWishlistItem(product));
+    addWishlist({
+      productId: item.productId,
+      slug: item.slug,
+      name: item.name,
+      image: item.image,
+      price: item.unitPrice,
+      category: item.category,
+      availability: item.availability,
+      addedAt: Date.now(),
+    });
     removeItem(key);
     pushToast({
       title: "Moved to your wishlist",
@@ -211,6 +232,7 @@ export function CartView() {
                     src={item.image}
                     alt={item.name}
                     fill
+                    unoptimized={isDynamicMediaSrc(item.image)}
                     sizes="(max-width: 640px) 100vw, 128px"
                     className="object-cover"
                   />
@@ -346,9 +368,10 @@ export function CartView() {
               </div>
               <button
                 type="submit"
-                className="h-11 shrink-0 bg-bronze px-6 text-[10px] uppercase tracking-[0.16em] text-ivory transition-colors hover:bg-bronze-dark"
+                disabled={applyingCode}
+                className="h-11 shrink-0 bg-bronze px-6 text-[10px] uppercase tracking-[0.16em] text-ivory transition-colors hover:bg-bronze-dark disabled:opacity-60"
               >
-                Apply code
+                {applyingCode ? "Checking…" : "Apply code"}
               </button>
             </form>
             {codeError ? (
@@ -377,7 +400,7 @@ export function CartView() {
               </div>
             ) : (
               <p className="mt-2 text-[10px] text-muted">
-                Demonstration codes: WELCOMEKIGALI, ATELIER10
+                Enter your atelier invitation or seasonal privilege code.
               </p>
             )}
           </div>
