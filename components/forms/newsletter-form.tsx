@@ -30,14 +30,34 @@ export function NewsletterForm({
   });
 
   const onSubmit = async (values: NewsletterInput) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setSubscribed(true);
-    reset();
-    pushToast({
-      title: "You're on the atelier list",
-      description: `Sample subscription recorded for ${values.email}. No mailing list is connected in this demo.`,
-      variant: "success",
-    });
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.email,
+          source: variant === "panel" ? "journal_panel" : "footer",
+        }),
+      });
+      const json = (await res.json()) as { error?: { message?: string } };
+      if (!res.ok) {
+        throw new Error(json.error?.message ?? "Unable to subscribe right now.");
+      }
+      setSubscribed(true);
+      reset();
+      pushToast({
+        title: "You're on the atelier list",
+        description: `Private viewings & journal notes will be sent to ${values.email}.`,
+        variant: "success",
+      });
+    } catch (err) {
+      pushToast({
+        title: "Subscription failed",
+        description:
+          err instanceof Error ? err.message : "Please try again shortly.",
+        variant: "error",
+      });
+    }
   };
 
   if (subscribed) {
@@ -54,7 +74,7 @@ export function NewsletterForm({
         <div>
           <p className="text-[12px] font-medium text-ink">You&apos;re on the list.</p>
           <p className="mt-1 text-[11px] leading-relaxed text-muted">
-            This is a demonstration form — no emails will be sent.
+            Thank you for joining the DODOX Kigali Atelier private list.
           </p>
         </div>
       </div>
@@ -120,8 +140,7 @@ export function NewsletterForm({
           variant === "panel" ? "text-ink-soft/70" : "text-muted",
         )}
       >
-        Private invitations only. Demonstration form — not connected to a mailing
-        list.
+        Private invitations &amp; seasonal previews only. Unsubscribe anytime.
       </p>
     </form>
   );

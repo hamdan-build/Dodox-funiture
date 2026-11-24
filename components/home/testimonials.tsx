@@ -2,9 +2,10 @@ import Link from "next/link";
 import { ArrowRight, Quote } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { StarRating } from "@/components/ui/star-rating";
-import { testimonials } from "@/data/journal";
+import { getPublishedTestimonialsFromDb } from "@/lib/server/services/cms.service";
 
-export function Testimonials() {
+export async function Testimonials() {
+  const testimonials = await getPublishedTestimonialsFromDb();
   return (
     <section className="container-shell py-16 sm:py-20 lg:py-24">
       <SectionHeading

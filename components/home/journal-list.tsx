@@ -4,21 +4,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { journalCategories, journalPosts } from "@/data/journal";
+import { journalCategories, journalPosts as fallbackJournalPosts } from "@/data/journal";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type { JournalPost } from "@/types";
 
-export function JournalList() {
-  const [category, setCategory] = useState<(typeof journalCategories)[number]>("All");
-  const featured = journalPosts.find((post) => post.featured) ?? journalPosts[0];
+export function JournalList({
+  initialPosts,
+}: {
+  initialPosts?: JournalPost[];
+}) {
+  const sourcePosts =
+    initialPosts && initialPosts.length > 0 ? initialPosts : fallbackJournalPosts;
+  const [category, setCategory] = useState<string>("All");
+  const featured = sourcePosts.find((post) => post.featured) ?? sourcePosts[0];
+
+  const categories = useMemo(() => {
+    const dynamic = Array.from(new Set(sourcePosts.map((p) => p.category)));
+    const merged = Array.from(new Set([...journalCategories, ...dynamic]));
+    return merged;
+  }, [sourcePosts]);
 
   const posts = useMemo(() => {
     const list =
       category === "All"
-        ? journalPosts
-        : journalPosts.filter((post) => post.category === category);
+        ? sourcePosts
+        : sourcePosts.filter((post) => post.category === category);
     return list;
-  }, [category]);
+  }, [category, sourcePosts]);
 
   return (
     <>
@@ -73,7 +86,7 @@ export function JournalList() {
 
       <section className="container-shell pb-6">
         <div className="flex gap-2 overflow-x-auto hide-scrollbar border-y border-line/60 py-3">
-          {journalCategories.map((entry) => (
+          {categories.map((entry) => (
             <button
               key={entry}
               type="button"

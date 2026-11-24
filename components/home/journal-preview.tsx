@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { journalPosts } from "@/data/journal";
+import { getPublishedJournalPostsFromDb } from "@/lib/server/services/cms.service";
 import { formatDate } from "@/lib/utils";
 
-export function JournalPreview() {
-  const posts = journalPosts.slice(0, 3);
+export async function JournalPreview() {
+  const allPosts = await getPublishedJournalPostsFromDb();
+  const posts = allPosts.slice(0, 3);
 
   return (
     <section className="border-t border-line/60 bg-parchment py-16 sm:py-20 lg:py-24">

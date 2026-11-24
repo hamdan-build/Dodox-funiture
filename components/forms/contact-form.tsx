@@ -23,7 +23,7 @@ const subjects = [
 ];
 
 export function ContactForm() {
-  const [sent, setSent] = useState<ContactInput | null>(null);
+  const [sent, setSent] = useState<(ContactInput & { reference: string }) | null>(null);
   const pushToast = useUiStore((state) => state.pushToast);
 
   const {
@@ -43,14 +43,36 @@ export function ContactForm() {
   });
 
   const onSubmit = async (values: ContactInput) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setSent(values);
-    reset();
-    pushToast({
-      title: "Message recorded",
-      description: "Demonstration only — no email was sent.",
-      variant: "success",
-    });
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const json = (await res.json()) as {
+        data?: { reference: string };
+        error?: { message?: string };
+      };
+      if (!res.ok || !json.data?.reference) {
+        throw new Error(
+          json.error?.message ?? "Unable to send your message right now.",
+        );
+      }
+      setSent({ ...values, reference: json.data.reference });
+      reset();
+      pushToast({
+        title: "Message received",
+        description: `Reference ${json.data.reference} sent to the Kigali concierge.`,
+        variant: "success",
+      });
+    } catch (err) {
+      pushToast({
+        title: "Could not send message",
+        description:
+          err instanceof Error ? err.message : "Please try again shortly.",
+        variant: "error",
+      });
+    }
   };
 
   if (sent) {
@@ -63,15 +85,11 @@ export function ContactForm() {
           Thank you, {sent.name.split(" ")[0]}.
         </h2>
         <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
-          Your message about <span className="text-ink">{sent.subject}</span> has
-          been recorded in this browser. A concierge would normally reply to{" "}
-          <span className="text-ink">{sent.email}</span> within one working day.
+          Your message about <span className="text-ink">{sent.subject}</span> is
+          logged under reference <span className="font-mono text-ink">{sent.reference}</span>.
+          Our concierge replies to <span className="text-ink">{sent.email}</span>{" "}
+          within one working day.
         </p>
-        <div className="mt-4 border border-line/70 bg-ivory/60 p-3.5 text-[10.5px] leading-relaxed text-muted">
-          <strong className="font-medium text-ink">Demonstration notice:</strong> no
-          email was sent and nothing was stored on a server. Connect a form endpoint
-          (or email service) before launch.
-        </div>
         <button
           type="button"
           onClick={() => setSent(null)}
@@ -156,7 +174,7 @@ export function ContactForm() {
         )}
       </button>
       <p className="mt-2.5 text-center text-[9.5px] leading-relaxed text-muted">
-        Demonstration form · validated locally, not connected to an email service.
+        Direct Kigali concierge desk · Monday to Saturday, 09:00 – 18:30 CAT.
       </p>
     </form>
   );

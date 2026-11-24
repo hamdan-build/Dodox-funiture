@@ -5,13 +5,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { NewsletterSection } from "@/components/home/newsletter-section";
-import { getRelatedPosts, journalMap, journalPosts } from "@/data/journal";
 import { buildMetadata } from "@/lib/seo";
+import { getPublishedJournalPostBySlugFromDb } from "@/lib/server/services/cms.service";
 import { formatDate } from "@/lib/utils";
 
-export function generateStaticParams() {
-  return journalPosts.map((post) => ({ slug: post.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -19,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = journalMap[slug];
+  const { post } = await getPublishedJournalPostBySlugFromDb(slug);
   if (!post) {
     return buildMetadata({
       title: "Journal entry not found",
@@ -43,10 +41,8 @@ export default async function JournalEntryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = journalMap[slug];
+  const { post, related } = await getPublishedJournalPostBySlugFromDb(slug);
   if (!post) notFound();
-
-  const related = getRelatedPosts(slug, 3);
 
   return (
     <>
@@ -96,11 +92,12 @@ export default async function JournalEntryPage({
             })}
           </div>
 
-          <div className="mt-8 border border-line/60 bg-shell/40 p-4 text-[10.5px] leading-relaxed text-muted">
-            <strong className="font-medium text-ink">Sample editorial:</strong>{" "}
-            this article was written as demonstration content for the storefront
-            build and is not approved brand copy.
-          </div>
+          {post.isSample !== false ? (
+            <div className="mt-8 border border-line/60 bg-shell/40 p-4 text-[10.5px] leading-relaxed text-muted">
+              <strong className="font-medium text-ink">Atelier editorial:</strong>{" "}
+              curated from the DODOX Kigali journal archive.
+            </div>
+          ) : null}
 
           <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-5">
             <Link
@@ -121,32 +118,38 @@ export default async function JournalEntryPage({
         </div>
       </article>
 
-      <section className="border-y border-line/60 bg-parchment py-12">
-        <div className="container-shell">
-          <h2 className="font-display text-2xl text-ink">Continue reading</h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-3">
-            {related.map((entry) => (
-              <Link key={entry.slug} href={`/journal/${entry.slug}`} className="group">
-                <div className="relative aspect-[4/3] overflow-hidden bg-shell">
-                  <Image
-                    src={entry.image}
-                    alt={entry.alt}
-                    fill
-                    sizes="33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <p className="mt-3 text-[9px] uppercase tracking-[0.14em] text-bronze">
-                  {entry.category}
-                </p>
-                <h3 className="mt-1.5 font-display text-xl leading-snug text-ink group-hover:text-bronze">
-                  {entry.title}
-                </h3>
-              </Link>
-            ))}
+      {related.length > 0 ? (
+        <section className="border-y border-line/60 bg-parchment py-12">
+          <div className="container-shell">
+            <h2 className="font-display text-2xl text-ink">Continue reading</h2>
+            <div className="mt-5 grid gap-5 sm:grid-cols-3">
+              {related.map((entry) => (
+                <Link
+                  key={entry.slug}
+                  href={`/journal/${entry.slug}`}
+                  className="group"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-shell">
+                    <Image
+                      src={entry.image}
+                      alt={entry.alt}
+                      fill
+                      sizes="33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <p className="mt-3 text-[9px] uppercase tracking-[0.14em] text-bronze">
+                    {entry.category}
+                  </p>
+                  <h3 className="mt-1.5 font-display text-xl leading-snug text-ink group-hover:text-bronze">
+                    {entry.title}
+                  </h3>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <NewsletterSection />
     </>

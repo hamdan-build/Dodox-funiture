@@ -71,6 +71,7 @@ interface Attachment {
   id: string;
   name: string;
   url: string;
+  file?: File;
 }
 
 export function CustomAtelierForm() {
@@ -121,6 +122,7 @@ export function CustomAtelierForm() {
         id: `${file.name}-${Date.now()}`,
         name: file.name,
         url: URL.createObjectURL(file),
+        file,
       })),
     ]);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -135,17 +137,67 @@ export function CustomAtelierForm() {
   };
 
   const onSubmit = async (values: AtelierInput) => {
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    const ref = `ATL-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    setReference(ref);
-    setSubmitted(values);
-    reset();
-    setAttachments([]);
-    pushToast({
-      title: "Atelier enquiry received",
-      description: `Reference ${ref}. This is a frontend demonstration — no email was sent.`,
-      variant: "success",
-    });
+    try {
+      const uploadedUrls: string[] = [];
+      for (const att of attachments) {
+        if (!att.file) continue;
+        const fd = new FormData();
+        fd.append("file", att.file);
+        const upRes = await fetch("/api/atelier-enquiries/upload", {
+          method: "POST",
+          body: fd,
+        });
+        if (upRes.ok) {
+          const upJson = (await upRes.json()) as { data?: { url?: string } };
+          if (upJson.data?.url) uploadedUrls.push(upJson.data.url);
+        }
+      }
+
+      const res = await fetch("/api/atelier-enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          furnitureType: values.furnitureType,
+          dimensions: values.dimensions,
+          materials: values.materials,
+          finish: values.finish,
+          budget: values.budget,
+          description: values.description,
+          contactPreference: values.contactPreference,
+          referenceImages: uploadedUrls,
+        }),
+      });
+      const json = (await res.json()) as {
+        ok?: boolean;
+        data?: { reference: string };
+        error?: { message?: string };
+      };
+      if (!res.ok || !json.data?.reference) {
+        throw new Error(
+          json.error?.message ?? "Unable to submit Atelier enquiry right now.",
+        );
+      }
+
+      setReference(json.data.reference);
+      setSubmitted(values);
+      reset();
+      setAttachments([]);
+      pushToast({
+        title: "Atelier enquiry received",
+        description: `Reference ${json.data.reference} logged with our Kigali designers.`,
+        variant: "success",
+      });
+    } catch (err) {
+      pushToast({
+        title: "Could not submit enquiry",
+        description:
+          err instanceof Error ? err.message : "Please try again shortly.",
+        variant: "error",
+      });
+    }
   };
 
   if (submitted) {
@@ -184,9 +236,9 @@ export function CustomAtelierForm() {
 
         <div className="mt-5 border border-line/70 bg-ivory/60 p-4">
           <p className="text-[10.5px] leading-relaxed text-muted">
-            <strong className="font-medium text-ink">Demonstration notice:</strong>{" "}
-            this form validates and displays a success state locally. Nothing was
-            emailed or stored on a server. Connect a backend endpoint before launch.
+            <strong className="font-medium text-ink">Concierge workflow:</strong>{" "}
+            your brief and reference measurements have been stored for our Kigali
+            atelier team. No deposit is collected online prior to design review.
           </p>
         </div>
 
