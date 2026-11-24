@@ -1,7 +1,11 @@
 const CONTROL_CHARS_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
 export function sanitizeText(input: string, maxLength = 4000): string {
-  return input.replace(CONTROL_CHARS_RE, "").trim().slice(0, maxLength);
+  return input
+    .replace(CONTROL_CHARS_RE, "")
+    .replace(/<[^>]*>/g, "")
+    .trim()
+    .slice(0, maxLength);
 }
 
 export function sanitizeMultilineText(input: string, maxLength = 4000): string {
