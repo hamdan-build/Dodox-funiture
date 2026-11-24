@@ -121,7 +121,10 @@ export function PurchasePanel({ product }: { product: Product }) {
       ? Math.round(((effectiveCompareAt - unitPrice) / effectiveCompareAt) * 100)
       : 0;
 
+  const isOutOfStock = product.availability === "out-of-stock";
+
   const handleAdd = () => {
+    if (isOutOfStock) return;
     addItem(buildCartItem(product, selectionIds, quantity));
     pushToast({
       title: "Added to your bag",
@@ -239,18 +242,21 @@ export function PurchasePanel({ product }: { product: Product }) {
           <QuantityStepper value={quantity} onChange={setQuantity} className="shrink-0" />
           <button
             type="button"
+            disabled={isOutOfStock}
             onClick={handleAdd}
             className={cn(
               buttonStyles({ size: "lg", className: "flex-1" }),
-              "min-w-0",
+              "min-w-0 disabled:cursor-not-allowed disabled:opacity-55",
             )}
           >
             <ShoppingBag size={15} strokeWidth={1.5} />
             <span className="truncate">
-              Add to Bag
-              <span className="hidden sm:inline">
-                {" "}· {formatRwf(unitPrice * quantity)}
-              </span>
+              {isOutOfStock ? "Currently Out of Stock" : "Add to Bag"}
+              {!isOutOfStock ? (
+                <span className="hidden sm:inline">
+                  {" "}· {formatRwf(unitPrice * quantity)}
+                </span>
+              ) : null}
             </span>
           </button>
         </div>
@@ -342,11 +348,12 @@ export function PurchasePanel({ product }: { product: Product }) {
           </div>
           <button
             type="button"
+            disabled={isOutOfStock}
             onClick={handleAdd}
-            className="flex h-11 shrink-0 items-center gap-2 bg-bronze px-5 text-[9px] uppercase tracking-[0.14em] text-ivory"
+            className="flex h-11 shrink-0 items-center gap-2 bg-bronze px-5 text-[9px] uppercase tracking-[0.14em] text-ivory disabled:opacity-50"
           >
             <ShoppingBag size={13} strokeWidth={1.5} />
-            Add to Bag
+            {isOutOfStock ? "Out of Stock" : "Add to Bag"}
           </button>
         </div>
       </div>

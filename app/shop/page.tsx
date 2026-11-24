@@ -3,19 +3,24 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ServiceStrip } from "@/components/layout/service-strip";
 import { CatalogView } from "@/components/catalog/catalog-view";
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
 import {
   parseCatalogSearchParams,
   type CatalogFilters,
 } from "@/lib/catalog";
+import {
+  getPublishedCategoriesFromDb,
+  getPublishedCollectionsFromDb,
+  getPublishedProductsFromDb,
+} from "@/lib/server/services/catalogue.service";
 import { buildMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Furniture catalog",
   description:
-    "Browse the DODOX collection of handcrafted sofas, tables, beds and atelier pieces. Filter by room, material, price and availability. Sample catalogue for demonstration.",
+    "Browse the DODOX collection of handcrafted sofas, tables, beds and atelier pieces. Filter by room, material, price and availability.",
   path: "/shop",
   keywords: [
     "furniture catalogue Kigali",
@@ -30,7 +35,13 @@ export default async function ShopPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const [params, products, categories, collections] = await Promise.all([
+    searchParams,
+    getPublishedProductsFromDb(),
+    getPublishedCategoriesFromDb(),
+    getPublishedCollectionsFromDb(),
+  ]);
+
   const initialFilters = parseCatalogSearchParams(params);
   const activeCategory = categories.find(
     (category) => category.slug === initialFilters.category,
@@ -43,8 +54,6 @@ export default async function ShopPage({
       .length,
   }));
 
-  // Category links are handled client-side by CatalogView; the initial filter
-  // is passed both to the view and (for clarity) the heading.
   const filters: CatalogFilters = initialFilters;
 
   return (
@@ -118,7 +127,12 @@ export default async function ShopPage({
         </div>
       </div>
 
-      <CatalogView initialFilters={filters} initialProducts={products} />
+      <CatalogView
+        initialFilters={filters}
+        initialProducts={products}
+        categories={categories}
+        collections={collections.map((c) => ({ slug: c.slug, name: c.name }))}
+      />
 
       <ServiceStrip />
     </>

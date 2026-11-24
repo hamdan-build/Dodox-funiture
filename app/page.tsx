@@ -11,6 +11,8 @@ import { Testimonials } from "@/components/home/testimonials";
 import { siteConfig } from "@/data/site";
 import { buildMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = buildMetadata({
   title: "DODOX Furniture — Handcrafted furniture for Kigali homes",
   description: siteConfig.description,

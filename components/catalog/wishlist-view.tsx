@@ -2,26 +2,33 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import { buttonStyles } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Price } from "@/components/ui/price";
 import { Skeleton } from "@/components/ui/skeleton";
-import { productMap } from "@/data/products";
 import { buildCartItem } from "@/lib/cart";
 import { availabilityLabels } from "@/lib/catalog";
+import { isDynamicMediaSrc } from "@/lib/utils";
 import { useMounted } from "@/hooks/use-mounted";
 import { useCartStore } from "@/store/cart";
 import { useUiStore } from "@/store/ui";
 import { useWishlistStore } from "@/store/wishlist";
+import type { Product } from "@/types";
 
-export function WishlistView() {
+export function WishlistView({ products }: { products: Product[] }) {
   const mounted = useMounted();
   const items = useWishlistStore((state) => state.items);
   const remove = useWishlistStore((state) => state.remove);
   const addItem = useCartStore((state) => state.addItem);
   const setCartOpen = useUiStore((state) => state.setCartOpen);
   const pushToast = useUiStore((state) => state.pushToast);
+
+  const productBySlug = useMemo(
+    () => new Map(products.map((p) => [p.slug, p])),
+    [products],
+  );
 
   if (!mounted) {
     return (
@@ -75,7 +82,11 @@ export function WishlistView() {
 
       <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {items.map((item) => {
-          const product = productMap[item.slug];
+          const product = productBySlug.get(item.slug);
+          const displayPrice = product?.price ?? item.price;
+          const displayAvailability = product?.availability ?? item.availability;
+          const isOutOfStock = displayAvailability === "out-of-stock";
+
           return (
             <article
               key={item.productId}
@@ -84,9 +95,10 @@ export function WishlistView() {
               <div className="relative overflow-hidden bg-shell">
                 <Link href={`/shop/${item.slug}`} className="block aspect-[4/5]">
                   <Image
-                    src={item.image}
+                    src={product?.images[0]?.src ?? item.image}
                     alt={item.name}
                     fill
+                    unoptimized={isDynamicMediaSrc(product?.images[0]?.src ?? item.image)}
                     sizes="(max-width: 640px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 hover:scale-[1.03]"
                   />
@@ -110,17 +122,18 @@ export function WishlistView() {
 
               <div className="flex flex-1 flex-col p-3.5">
                 <p className="text-[8px] uppercase tracking-[0.16em] text-muted">
-                  {availabilityLabels[item.availability]}
+                  {availabilityLabels[displayAvailability]}
                 </p>
                 <h2 className="mt-1.5 font-display text-[17px] leading-snug text-ink">
                   <Link href={`/shop/${item.slug}`} className="hover:text-bronze">
                     {item.name}
                   </Link>
                 </h2>
-                <Price value={item.price} size="sm" className="mt-2" />
+                <Price value={displayPrice} size="sm" className="mt-2" />
                 <div className="mt-auto pt-4">
                   <button
                     type="button"
+                    disabled={isOutOfStock}
                     onClick={() => {
                       if (!product) {
                         pushToast({
@@ -139,11 +152,11 @@ export function WishlistView() {
                     }}
                     className={buttonStyles({
                       size: "sm",
-                      className: "w-full",
+                      className: "w-full disabled:opacity-50",
                     })}
                   >
                     <ShoppingBag size={11} strokeWidth={1.5} />
-                    Add to bag
+                    {isOutOfStock ? "Out of stock" : "Add to bag"}
                   </button>
                   <button
                     type="button"

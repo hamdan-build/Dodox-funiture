@@ -72,3 +72,15 @@ export async function apiRequest<T>(
 
   return payload.data as T;
 }
+
+export const adminFetch = apiRequest;
+
+export async function adminUploadFile<T>(
+  url: string,
+  formData: FormData,
+): Promise<T> {
+  return apiRequest<T>(url, {
+    method: "POST",
+    body: formData,
+  });
+}

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ServiceStrip } from "@/components/layout/service-strip";
 import { WishlistView } from "@/components/catalog/wishlist-view";
+import { getPublishedProductsFromDb } from "@/lib/server/services/catalogue.service";
 import { buildMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Wishlist",
@@ -12,13 +15,14 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
-export default function WishlistPage() {
+export default async function WishlistPage() {
+  const products = await getPublishedProductsFromDb();
   return (
     <>
       <div className="container-shell pt-5">
         <Breadcrumbs items={[{ label: "Wishlist" }]} />
       </div>
-      <WishlistView />
+      <WishlistView products={products} />
       <ServiceStrip />
     </>
   );

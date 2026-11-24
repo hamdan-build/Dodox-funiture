@@ -46,7 +46,9 @@ export const availabilityLabels: Record<Availability, string> = {
 
 export interface CatalogFilters {
   category: CategorySlug | "all";
+  collection: string;
   materials: string[];
+  colors: string[];
   minPrice: number;
   maxPrice: number;
   availability: Availability[];
@@ -57,7 +59,9 @@ export interface CatalogFilters {
 
 export const defaultFilters: CatalogFilters = {
   category: "all",
+  collection: "all",
   materials: [],
+  colors: [],
   minPrice: 0,
   maxPrice: 0,
   availability: [],
@@ -78,7 +82,9 @@ export function parseCatalogSearchParams(
 
   return {
     category: (first(params.category) as CategorySlug | "all") || "all",
+    collection: first(params.collection) || "all",
     materials: list(params.material),
+    colors: list(params.color),
     minPrice: Number(first(params.min)) || 0,
     maxPrice: Number(first(params.max)) || 0,
     availability: list(params.availability) as Availability[],
@@ -101,8 +107,29 @@ export function filterProducts(
       return false;
     }
     if (
+      filters.collection !== "all" &&
+      product.collectionSlug !== filters.collection &&
+      product.collection !== filters.collection
+    ) {
+      return false;
+    }
+    if (
       filters.materials.length > 0 &&
-      !filters.materials.some((material) => product.materials.includes(material))
+      !filters.materials.some((material) =>
+        product.materials.some(
+          (m) => m.toLowerCase().includes(material.toLowerCase()),
+        ),
+      )
+    ) {
+      return false;
+    }
+    if (
+      filters.colors.length > 0 &&
+      !filters.colors.some((color) =>
+        product.colors.some(
+          (c) => c.name.toLowerCase() === color.toLowerCase(),
+        ),
+      )
     ) {
       return false;
     }
@@ -126,7 +153,9 @@ export function filterProducts(
         product.subtitle,
         product.description,
         product.category,
+        product.collection ?? "",
         ...product.materials,
+        ...product.colors.map((c) => c.name),
         ...(product.tags ?? []),
       ]
         .join(" ")
@@ -153,7 +182,9 @@ export function filterProducts(
 export const activeFilterCount = (filters: CatalogFilters): number => {
   let count = 0;
   if (filters.category !== "all") count += 1;
+  if (filters.collection !== "all") count += 1;
   count += filters.materials.length;
+  count += filters.colors.length;
   if (filters.minPrice > 0 || filters.maxPrice > 0) count += 1;
   count += filters.availability.length;
   count += filters.seating.length;

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Expand, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isDynamicMediaSrc } from "@/lib/utils";
 import type { ImageAsset } from "@/types";
 
 export function ProductGallery({
@@ -39,6 +39,7 @@ export function ProductGallery({
             alt={current.alt}
             fill
             priority
+            unoptimized={isDynamicMediaSrc(current.src)}
             sizes="(max-width: 1024px) 100vw, 55vw"
             className="object-cover animate-fade-in"
           />
@@ -90,6 +91,7 @@ export function ProductGallery({
               src={image.src}
               alt=""
               fill
+              unoptimized={isDynamicMediaSrc(image.src)}
               sizes="120px"
               className="object-cover"
             />
@@ -126,6 +128,7 @@ export function ProductGallery({
               src={current.src}
               alt={current.alt}
               fill
+              unoptimized={isDynamicMediaSrc(current.src)}
               sizes="90vw"
               className="object-contain"
             />

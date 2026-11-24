@@ -9,7 +9,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { WishlistButton } from "@/components/ui/wishlist-button";
 import { buildCartItem, toWishlistItem } from "@/lib/cart";
 import { availabilityLabels } from "@/lib/catalog";
-import { cn } from "@/lib/utils";
+import { cn, isDynamicMediaSrc } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
 import { useUiStore } from "@/store/ui";
 import type { Product } from "@/types";
@@ -29,10 +29,13 @@ export function ProductCard({
   const pushToast = useUiStore((state) => state.pushToast);
   const setCartOpen = useUiStore((state) => state.setCartOpen);
 
-  const badgeLabel = product.badge;
+  const badgeLabel =
+    product.availability === "out-of-stock" ? "Out of stock" : product.badge;
   const secondary = product.images[1]?.src;
+  const isOutOfStock = product.availability === "out-of-stock";
 
   const handleQuickAdd = () => {
+    if (isOutOfStock) return;
     addItem(buildCartItem(product));
     pushToast({
       title: "Added to your bag",
@@ -60,6 +63,7 @@ export function ProductCard({
             alt={product.images[0].alt}
             fill
             priority={priority}
+            unoptimized={isDynamicMediaSrc(product.images[0].src)}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className={cn(
               "object-cover transition-all duration-700 group-hover:scale-[1.03]",
@@ -71,6 +75,7 @@ export function ProductCard({
               src={secondary}
               alt=""
               fill
+              unoptimized={isDynamicMediaSrc(secondary)}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
               aria-hidden="true"
@@ -95,11 +100,12 @@ export function ProductCard({
           <div className="pointer-events-auto flex items-center justify-between gap-2">
             <button
               type="button"
+              disabled={isOutOfStock}
               onClick={handleQuickAdd}
-              className="inline-flex items-center gap-1.5 bg-parchment px-3 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:bg-ink hover:text-ivory"
+              className="inline-flex items-center gap-1.5 bg-parchment px-3 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:bg-ink hover:text-ivory disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Plus size={11} strokeWidth={1.8} />
-              Quick add
+              {isOutOfStock ? "Unavailable" : "Quick add"}
             </button>
             <Link
               href={`/shop/${product.slug}`}
@@ -163,12 +169,13 @@ export function ProductCard({
           </div>
           <button
             type="button"
+            disabled={isOutOfStock}
             onClick={handleQuickAdd}
-            className="inline-flex shrink-0 items-center gap-1 border border-line px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-bronze hover:bg-bronze hover:text-ivory"
+            className="inline-flex shrink-0 items-center gap-1 border border-line px-2.5 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-bronze hover:bg-bronze hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={`Add ${product.name} to bag`}
           >
             <Plus size={10} strokeWidth={1.8} />
-            Add
+            {isOutOfStock ? "Sold out" : "Add"}
           </button>
         </div>
       </div>

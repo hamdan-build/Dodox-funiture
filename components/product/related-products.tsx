@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/catalog/product-card";
-import { getRelatedProducts } from "@/data/products";
+import { getRelatedProductsFromDb } from "@/lib/server/services/catalogue.service";
 import type { Product } from "@/types";
 
-export function RelatedProducts({ product }: { product: Product }) {
-  const related = getRelatedProducts(product, 4);
+export async function RelatedProducts({
+  product,
+  relatedProducts,
+}: {
+  product: Product;
+  relatedProducts?: Product[];
+}) {
+  const related =
+    relatedProducts ?? (await getRelatedProductsFromDb(product, 4));
 
   return (
     <section className="border-t border-line/60 bg-ivory py-14 sm:py-16 lg:py-20">

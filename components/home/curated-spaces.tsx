@@ -1,9 +1,32 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { curatedSpaces } from "@/data/categories";
+import { curatedSpaces as defaultSpaces } from "@/data/categories";
+import { getPublishedCategoriesFromDb } from "@/lib/server/services/catalogue.service";
+import { isDynamicMediaSrc } from "@/lib/utils";
+import type { Category } from "@/types";
 
-export function CuratedSpaces() {
+export async function CuratedSpaces({
+  categories,
+}: {
+  categories?: Category[];
+}) {
+  const liveCategories = categories ?? (await getPublishedCategoriesFromDb());
+  const customAtelierTile = defaultSpaces[defaultSpaces.length - 1];
+
+  const spaces = [
+    ...liveCategories.slice(0, 5).map((cat, idx) => ({
+      slug: cat.slug,
+      eyebrow: `${String(idx + 1).padStart(2, "0")} · ${cat.shortName}`,
+      title: cat.name,
+      blurb: cat.tagline || cat.description,
+      image: cat.image,
+      alt: cat.alt,
+      href: `/shop?category=${cat.slug}`,
+    })),
+    customAtelierTile,
+  ];
+
   return (
     <section className="container-shell py-16 sm:py-20 lg:py-24">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
@@ -27,7 +50,7 @@ export function CuratedSpaces() {
       </div>
 
       <div className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-        {curatedSpaces.map((space) => (
+        {spaces.map((space) => (
           <Link
             key={space.slug}
             href={space.href}
@@ -38,6 +61,7 @@ export function CuratedSpaces() {
                 src={space.image}
                 alt={space.alt}
                 fill
+                unoptimized={isDynamicMediaSrc(space.image)}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               />

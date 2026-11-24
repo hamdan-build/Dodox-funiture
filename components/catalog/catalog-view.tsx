@@ -9,7 +9,6 @@ import { buttonStyles } from "@/components/ui/button";
 import { FiltersPanel } from "@/components/catalog/filters-panel";
 import { Drawer } from "@/components/ui/drawer";
 import { EmptyState } from "@/components/ui/empty-state";
-import { categories } from "@/data/categories";
 import {
   activeFilterCount,
   availabilityLabels,
@@ -20,16 +19,20 @@ import {
   type SortKey,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
-import type { Product } from "@/types";
+import type { Category, Product } from "@/types";
 
 const PAGE_SIZE = 9;
 
 export function CatalogView({
   initialFilters,
   initialProducts,
+  categories,
+  collections,
 }: {
   initialFilters: CatalogFilters;
   initialProducts: Product[];
+  categories: Category[];
+  collections: { slug: string; name: string }[];
 }) {
   const router = useRouter();
   const [filters, setFilters] = useState<CatalogFilters>(initialFilters);
@@ -38,12 +41,13 @@ export function CatalogView({
   const [columns, setColumns] = useState<3 | 4>(4);
   const isFirstRender = useRef(true);
 
-  const results = useMemo(() => filterProducts(initialProducts, filters), [initialProducts, filters]);
+  const results = useMemo(
+    () => filterProducts(initialProducts, filters),
+    [initialProducts, filters],
+  );
   const activeCount = activeFilterCount(filters);
   const initialFiltersKey = JSON.stringify(initialFilters);
 
-  // When the URL changes from outside this component (category links, browser
-  // back/forward), adopt the new server-provided filters without remounting.
   useEffect(() => {
     setFilters((current) =>
       JSON.stringify(current) === initialFiltersKey
@@ -63,7 +67,6 @@ export function CatalogView({
     setVisible(PAGE_SIZE);
   }, [filters.sort]);
 
-  // Keep the URL shareable and support direct links from the homepage.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -71,7 +74,9 @@ export function CatalogView({
     }
     const params = new URLSearchParams();
     if (filters.category !== "all") params.set("category", filters.category);
+    if (filters.collection !== "all") params.set("collection", filters.collection);
     if (filters.materials.length) params.set("material", filters.materials.join(","));
+    if (filters.colors.length) params.set("color", filters.colors.join(","));
     if (filters.minPrice) params.set("min", String(filters.minPrice));
     if (filters.maxPrice) params.set("max", String(filters.maxPrice));
     if (filters.availability.length)
@@ -88,6 +93,9 @@ export function CatalogView({
   const activeCategory = categories.find(
     (category) => category.slug === filters.category,
   );
+  const activeCollection = collections.find(
+    (col) => col.slug === filters.collection,
+  );
 
   const activeChips: { label: string; onRemove: () => void }[] = [
     ...(filters.category !== "all"
@@ -98,11 +106,26 @@ export function CatalogView({
           },
         ]
       : []),
+    ...(filters.collection !== "all"
+      ? [
+          {
+            label: activeCollection?.name ?? filters.collection,
+            onRemove: () => updateFilters({ collection: "all" }),
+          },
+        ]
+      : []),
     ...filters.materials.map((material) => ({
       label: material,
       onRemove: () =>
         updateFilters({
           materials: filters.materials.filter((entry) => entry !== material),
+        }),
+    })),
+    ...filters.colors.map((color) => ({
+      label: color,
+      onRemove: () =>
+        updateFilters({
+          colors: filters.colors.filter((entry) => entry !== color),
         }),
     })),
     ...filters.availability.map((availability) => ({
@@ -146,6 +169,9 @@ export function CatalogView({
           <div className="sticky top-[100px] max-h-[calc(100vh-120px)] overflow-y-auto border border-line/60 bg-parchment p-5 pr-4">
             <FiltersPanel
               filters={filters}
+              products={initialProducts}
+              categories={categories}
+              collections={collections}
               onChange={updateFilters}
               onClear={clearFilters}
               resultCount={results.length}
@@ -394,6 +420,9 @@ export function CatalogView({
         <div className="px-5 py-5">
           <FiltersPanel
             filters={filters}
+            products={initialProducts}
+            categories={categories}
+            collections={collections}
             onChange={updateFilters}
             onClear={clearFilters}
             resultCount={results.length}

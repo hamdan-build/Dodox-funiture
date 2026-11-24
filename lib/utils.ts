@@ -46,11 +46,19 @@ export function truncate(value: string, length = 120) {
 }
 
 export function absoluteUrl(path = "") {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://dodox-furniture.netlify.app").replace(
-    /\/$/,
-    "",
-  );
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL || "https://dodox-furniture.rw"
+  ).replace(/\/$/, "");
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function isDynamicMediaSrc(src: string | undefined | null): boolean {
+  if (!src) return false;
+  return (
+    src.startsWith("/api/media/") ||
+    src.startsWith("http://") ||
+    src.startsWith("https://")
+  );
 }
 
 export function toNumber(value: string | null | undefined, fallback: number) {

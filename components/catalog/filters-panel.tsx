@@ -1,16 +1,24 @@
 "use client";
 
+import { useMemo } from "react";
 import { Check, SlidersHorizontal, X } from "lucide-react";
-import { categories } from "@/data/categories";
-import { materialFacets, priceBounds, products } from "@/data/products";
 import {
   availabilityOptions,
   type CatalogFilters,
 } from "@/lib/catalog";
 import { cn, formatRwf } from "@/lib/utils";
+import type { Category, Product } from "@/types";
+
+interface CollectionFacet {
+  slug: string;
+  name: string;
+}
 
 interface FiltersPanelProps {
   filters: CatalogFilters;
+  products: Product[];
+  categories: Category[];
+  collections: CollectionFacet[];
   onChange: (next: Partial<CatalogFilters>) => void;
   onClear: () => void;
   resultCount: number;
@@ -64,16 +72,52 @@ function CheckRow({
 
 export function FiltersPanel({
   filters,
+  products,
+  categories,
+  collections,
   onChange,
   onClear,
   resultCount,
 }: FiltersPanelProps) {
-  const toggleList = (value: string, list: string[], key: keyof CatalogFilters) => {
+  const toggleList = (
+    value: string,
+    list: string[],
+    key: "materials" | "colors" | "availability",
+  ) => {
     const next = list.includes(value)
       ? list.filter((entry) => entry !== value)
       : [...list, value];
     onChange({ [key]: next } as Partial<CatalogFilters>);
   };
+
+  const priceBounds = useMemo(() => {
+    if (products.length === 0) return { min: 150000, max: 5000000 };
+    const prices = products.map((p) => p.price);
+    return {
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    };
+  }, [products]);
+
+  const materialFacets = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of products) {
+      for (const m of p.materials) set.add(m);
+    }
+    return Array.from(set).sort().slice(0, 12);
+  }, [products]);
+
+  const colorFacets = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of products) {
+      for (const c of p.colors) {
+        if (!map.has(c.name)) map.set(c.name, c.hex);
+      }
+    }
+    return Array.from(map.entries())
+      .map(([name, hex]) => ({ name, hex }))
+      .slice(0, 10);
+  }, [products]);
 
   const seatingCounts = [2, 3, 6].map((seats) => ({
     seats,
@@ -120,6 +164,34 @@ export function FiltersPanel({
           })}
         </div>
       </div>
+
+      {collections.length > 0 ? (
+        <div className="border-b border-line/70 py-4">
+          <SectionTitle>Curated collection</SectionTitle>
+          <div>
+            {collections.map((col) => {
+              const count = products.filter(
+                (p) => p.collectionSlug === col.slug || p.collection === col.name,
+              ).length;
+              if (count === 0) return null;
+              return (
+                <CheckRow
+                  key={col.slug}
+                  checked={filters.collection === col.slug}
+                  label={col.name}
+                  count={count}
+                  onChange={() =>
+                    onChange({
+                      collection:
+                        filters.collection === col.slug ? "all" : col.slug,
+                    })
+                  }
+                />
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
 
       <div className="border-b border-line/70 py-4">
         <div className="mb-3 flex items-baseline justify-between">
@@ -199,6 +271,39 @@ export function FiltersPanel({
         </div>
       </div>
 
+      {colorFacets.length > 0 ? (
+        <div className="border-b border-line/70 py-4">
+          <SectionTitle>Finish & colour</SectionTitle>
+          <div className="flex flex-wrap gap-1.5">
+            {colorFacets.map((color) => {
+              const active = filters.colors.includes(color.name);
+              return (
+                <button
+                  key={color.name}
+                  type="button"
+                  onClick={() =>
+                    toggleList(color.name, filters.colors, "colors")
+                  }
+                  className={cn(
+                    "inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] transition-colors",
+                    active
+                      ? "border-bronze bg-shell text-ink"
+                      : "border-line bg-parchment text-ink-soft hover:border-taupe",
+                  )}
+                  aria-pressed={active}
+                >
+                  <span
+                    className="h-2.5 w-2.5 rounded-full border border-ink/15"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                  {color.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       <div className="border-b border-line/70 py-4">
         <SectionTitle>Availability</SectionTitle>
         <div>
@@ -206,6 +311,7 @@ export function FiltersPanel({
             const count = products.filter(
               (product) => product.availability === option.value,
             ).length;
+            if (option.value === "out-of-stock" && count === 0) return null;
             return (
               <CheckRow
                 key={option.value}

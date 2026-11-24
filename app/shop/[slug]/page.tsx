@@ -12,16 +12,17 @@ import { RelatedProducts } from "@/components/product/related-products";
 import { TechnicalBlueprint } from "@/components/product/technical-blueprint";
 import { Accordion } from "@/components/ui/accordion";
 import { buttonStyles } from "@/components/ui/button";
-import { categoryMap } from "@/data/categories";
-import { getProductBySlug, products } from "@/data/products";
 import { careSteps, siteConfig } from "@/data/site";
 import { availabilityLabels } from "@/lib/catalog";
+import {
+  getPublishedCategoriesFromDb,
+  getPublishedProductBySlugFromDb,
+  getRelatedProductsFromDb,
+} from "@/lib/server/services/catalogue.service";
 import { buildMetadata } from "@/lib/seo";
 import { absoluteUrl, formatRwf } from "@/lib/utils";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -29,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getPublishedProductBySlugFromDb(slug);
   if (!product) {
     return buildMetadata({
       title: "Piece not found",
@@ -40,8 +41,10 @@ export async function generateMetadata({
   }
 
   return buildMetadata({
-    title: product.name,
-    description: `${product.description} Sample catalogue pricing: ${formatRwf(product.price)}.`,
+    title: product.seoTitle || product.name,
+    description:
+      product.seoDescription ||
+      `${product.description} Starting from ${formatRwf(product.price)}.`,
     path: `/shop/${product.slug}`,
     image: product.images[0]?.src,
     type: "article",
@@ -55,13 +58,25 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const [product, categories] = await Promise.all([
+    getPublishedProductBySlugFromDb(slug),
+    getPublishedCategoriesFromDb(),
+  ]);
   if (!product) notFound();
 
-  const category = categoryMap[product.category];
+  const related = await getRelatedProductsFromDb(product, 4);
+  const category = categories.find((c) => c.slug === product.category) ?? {
+    slug: product.category,
+    name: product.category.replace(/-/g, " "),
+  };
+
   const badges = [
     product.badge,
-    product.availability === "in-stock" ? "In Kigali stock" : "Atelier made to order",
+    product.availability === "in-stock"
+      ? "In Kigali stock"
+      : product.availability === "out-of-stock"
+        ? "Out of stock"
+        : "Atelier made to order",
   ].filter(Boolean) as string[];
 
   const jsonLd = {
@@ -70,7 +85,7 @@ export default async function ProductPage({
     name: product.name,
     description: product.description,
     image: [absoluteUrl(product.images[0].src)],
-    sku: product.id,
+    sku: product.sku ?? product.id,
     brand: { "@type": "Brand", name: "DODOX Furniture" },
     material: product.materials.join(", "),
     color: product.colors.map((color) => color.name).join(", "),
@@ -81,7 +96,9 @@ export default async function ProductPage({
       availability:
         product.availability === "in-stock"
           ? "https://schema.org/InStock"
-          : "https://schema.org/PreOrder",
+          : product.availability === "out-of-stock"
+            ? "https://schema.org/OutOfStock"
+            : "https://schema.org/PreOrder",
       url: absoluteUrl(`/shop/${product.slug}`),
     },
     ...(product.rating && product.reviewCount
@@ -162,7 +179,7 @@ export default async function ProductPage({
             <p className="eyebrow">The piece</p>
             <h2 className="mt-2 display-title">Made around the way you live</h2>
             <p className="mt-4 max-w-lg text-[13.5px] leading-[1.85] text-ink-soft/85">
-              {product.story}
+              {product.story || product.description}
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3">
               {product.dimensions.slice(0, 4).map((row) => (
@@ -251,21 +268,32 @@ export default async function ProductPage({
                   content: (
                     <div className="space-y-3">
                       <p>
-                        Structural joinery is covered by the sample atelier
+                        Structural joinery is covered by the DODOX atelier
                         guarantee. Warranty terms are confirmed in writing with
                         your order.
                       </p>
-                      <ul className="space-y-2">
-                        {careSteps.slice(0, 3).map((step) => (
-                          <li key={step.title} className="flex gap-2">
-                            <span className="mt-1.5 h-1 w-1 shrink-0 bg-bronze" />
-                            <span>
-                              <span className="text-ink">{step.title}.</span>{" "}
-                              {step.description}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                      {product.care.length > 0 ? (
+                        <ul className="space-y-2">
+                          {product.care.map((step, idx) => (
+                            <li key={idx} className="flex gap-2">
+                              <span className="mt-1.5 h-1 w-1 shrink-0 bg-bronze" />
+                              <span>{step}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <ul className="space-y-2">
+                          {careSteps.slice(0, 3).map((step) => (
+                            <li key={step.title} className="flex gap-2">
+                              <span className="mt-1.5 h-1 w-1 shrink-0 bg-bronze" />
+                              <span>
+                                <span className="text-ink">{step.title}.</span>{" "}
+                                {step.description}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   ),
                 },
@@ -294,7 +322,7 @@ export default async function ProductPage({
 
       <ProductReviews product={product} />
 
-      <RelatedProducts product={product} />
+      <RelatedProducts product={product} relatedProducts={related} />
 
       <section className="border-t border-line/60 bg-shell/40">
         <div className="container-shell grid gap-6 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
@@ -335,7 +363,6 @@ export default async function ProductPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* A quiet editorial strip keeps the page anchored visually on wide screens */}
       <section className="relative hidden h-[260px] lg:block">
         <Image
           src="/images/rooms/living-room.jpg"

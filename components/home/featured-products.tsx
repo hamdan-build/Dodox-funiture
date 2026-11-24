@@ -2,9 +2,16 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { featuredProducts } from "@/data/products";
+import { getFeaturedProductsFromDb } from "@/lib/server/services/catalogue.service";
+import type { Product } from "@/types";
 
-export function FeaturedProducts() {
+export async function FeaturedProducts({
+  products,
+}: {
+  products?: Product[];
+}) {
+  const featured = products ?? (await getFeaturedProductsFromDb(8));
+
   return (
     <section className="border-y border-line/60 bg-shell/35 py-16 sm:py-20 lg:py-24">
       <div className="container-shell">
@@ -19,13 +26,13 @@ export function FeaturedProducts() {
           }
         />
         <ProductGrid
-          products={featuredProducts}
+          products={featured}
           columns={4}
           className="mt-9"
           priorityCount={2}
         />
         <p className="mt-6 text-[10px] uppercase tracking-[0.14em] text-muted/80">
-          Sample catalogue · Pricing in RWF for demonstration only
+          Kigali atelier collection · Prices shown in RWF
         </p>
       </div>
     </section>

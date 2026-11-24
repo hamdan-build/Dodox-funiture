@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
-import { categories } from "@/data/categories";
-import { searchProducts } from "@/data/products";
-import { formatRwf } from "@/lib/utils";
+import { categories as defaultCategories } from "@/data/categories";
+import { formatRwf, isDynamicMediaSrc } from "@/lib/utils";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUiStore } from "@/store/ui";
+import type { Category, Product } from "@/types";
 
 const suggestions = ["Bouclé sofa", "Oak table", "Rattan", "Platform bed", "Wardrobe"];
 
@@ -18,13 +18,59 @@ export function SearchOverlay() {
   const open = useUiStore((state) => state.searchOpen);
   const setOpen = useUiStore((state) => state.setSearchOpen);
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [rooms, setRooms] = useState<Category[]>(defaultCategories);
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const mounted = useMounted();
 
   useLockBodyScroll(open);
 
-  const results = useMemo(() => searchProducts(query, 5), [query]);
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/categories")
+      .then((r) =>
+        r.ok ? (r.json() as Promise<{ data?: { categories?: Category[] } }>) : null,
+      )
+      .then((json) => {
+        if (json?.data?.categories?.length) {
+          setRooms(json.data.categories);
+        }
+      })
+      .catch(() => undefined);
+  }, [open]);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!open || !trimmed) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      fetch(`/api/products?mode=search&limit=5&q=${encodeURIComponent(trimmed)}`, {
+        signal: controller.signal,
+      })
+        .then((r) =>
+          r.ok ? (r.json() as Promise<{ data?: { products?: Product[] } }>) : null,
+        )
+        .then((json) => {
+          setResults(json?.data?.products ?? []);
+          setSearching(false);
+        })
+        .catch(() => {
+          setSearching(false);
+        });
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -142,7 +188,7 @@ export function SearchOverlay() {
               <div>
                 <p className="eyebrow mb-3">Browse rooms</p>
                 <ul className="space-y-1.5">
-                  {categories.map((category) => (
+                  {rooms.map((category) => (
                     <li key={category.slug}>
                       <Link
                         href={`/shop?category=${category.slug}`}
@@ -156,6 +202,10 @@ export function SearchOverlay() {
                 </ul>
               </div>
             </div>
+          ) : searching && results.length === 0 ? (
+            <p className="py-8 text-center text-xs uppercase tracking-[0.14em] text-muted">
+              Searching collection…
+            </p>
           ) : results.length > 0 ? (
             <div>
               <div className="mb-4 flex items-center justify-between">
@@ -184,6 +234,7 @@ export function SearchOverlay() {
                           src={product.images[0].src}
                           alt={product.images[0].alt}
                           fill
+                          unoptimized={isDynamicMediaSrc(product.images[0].src)}
                           sizes="56px"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
@@ -233,7 +284,7 @@ export function SearchOverlay() {
 
           {mounted ? (
             <p className="mt-6 border-t border-line pt-4 text-[10px] uppercase tracking-[0.14em] text-muted/70">
-              Press Esc to close · Search is demo-filtered across the sample catalogue
+              Press Esc to close · Live search across the DODOX Kigali catalogue
             </p>
           ) : null}
         </div>

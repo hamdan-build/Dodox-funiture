@@ -1,11 +1,30 @@
 import type { MetadataRoute } from "next";
-import { products } from "@/data/products";
-import { journalPosts } from "@/data/journal";
+import { asc, eq } from "drizzle-orm";
 import { siteConfig } from "@/data/site";
+import { getDb } from "@/lib/server/db/client";
+import { journalPosts as journalPostsTable } from "@/lib/server/db/schema";
+import { ensureSeeded } from "@/lib/server/db/seed";
+import { getPublishedProductsFromDb } from "@/lib/server/services/catalogue.service";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteConfig.url.replace(/\/$/, "");
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url
+  ).replace(/\/$/, "");
   const now = new Date();
+
+  const db = await getDb();
+  await ensureSeeded(db);
+
+  const [products, posts] = await Promise.all([
+    getPublishedProductsFromDb(),
+    db
+      .select()
+      .from(journalPostsTable)
+      .where(eq(journalPostsTable.status, "published"))
+      .orderBy(asc(journalPostsTable.publishedDate)),
+  ]);
 
   const staticRoutes: {
     path: string;
@@ -33,9 +52,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.75,
     })),
-    ...journalPosts.map((post) => ({
+    ...posts.map((post) => ({
       url: `${base}/journal/${post.slug}`,
-      lastModified: new Date(post.date),
+      lastModified: new Date(post.publishedDate),
       changeFrequency: "monthly" as const,
       priority: 0.5,
     })),
