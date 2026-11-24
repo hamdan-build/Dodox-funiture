@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1795520698470,
+      "tag": "0000_romantic_sugar_man",
+      "breakpoints": true
+    }
+  ]
+}

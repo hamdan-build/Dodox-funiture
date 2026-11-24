@@ -6,8 +6,8 @@
 | Phase | Description | Status | Notes |
 | --- | --- | --- | --- |
 | **Audit** | Full repository inspection & 6 architecture/spec docs | Completed | `PROJECT_AUDIT.md`, `SYSTEM_ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `ADMIN_MODULES.md`, `DEPLOYMENT_CLOUDFLARE.md`, `IMPLEMENTATION_ROADMAP.md` created. |
-| **Phase 1** | Foundation, Cloudflare config, 54-table D1 schema, migrations, seed & core server architecture | In Progress | Setting up Drizzle + OpenNext + Wrangler + D1 migrations + seed data. |
-| **Phase 2** | Secure Admin Auth, PBKDF2, Sessions, 8-role RBAC, Bootstrap & Admin Layout + Dashboard | Pending | |
+| **Phase 1** | Foundation, Cloudflare config, 54-table D1 schema, migrations, seed & core server architecture | Completed | `wrangler.jsonc`, `open-next.config.ts`, `drizzle.config.ts`, `migrations/0000_romantic_sugar_man.sql`, D1 seed, rate limiter, CSRF/Turnstile/sanitize helpers & Phase 1 tests verified. |
+| **Phase 2** | Secure Admin Auth, PBKDF2, Sessions, 8-role RBAC, Bootstrap & Admin Layout + Dashboard | In Progress | Implementing Web Crypto PBKDF2 auth, session cookies, RBAC guards, bootstrap & `/admin` workspace. |
 | **Phase 3** | Product, Category, Collection, R2 Media Library & Storefront Catalogue Connection | Pending | |
 | **Phase 4** | Server Pricing, Coupons, Checkout, Order Management, Tracking & Email Notifications | Pending | |
 | **Phase 5** | Inventory Management & Customer Management | Pending | |

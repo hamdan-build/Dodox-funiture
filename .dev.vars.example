@@ -1,0 +1,12 @@
+# ---------------------------------------------------------------------------
+# DODOX Furniture — Wrangler Local Worker Secrets (`.dev.vars`)
+# Copy to `.dev.vars` when running `wrangler dev` or `opennextjs-cloudflare preview`.
+# `.dev.vars` is gitignored. Never commit real credentials.
+# ---------------------------------------------------------------------------
+
+SESSION_SECRET=replace-with-at-least-32-chars-random-secret-key
+ADMIN_BOOTSTRAP_TOKEN=replace-with-strong-one-time-bootstrap-token
+TURNSTILE_SECRET_KEY=
+RESEND_API_KEY=
+EMAIL_FROM=DODOX Atelier <concierge@dodox.rw>
+ADMIN_NOTIFICATION_EMAIL=concierge@dodox.rw

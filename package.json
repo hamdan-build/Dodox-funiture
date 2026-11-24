@@ -2,18 +2,29 @@
   "name": "dodox-furniture",
   "version": "1.0.0",
   "private": true,
-  "description": "DODOX Furniture \u2014 premium furniture storefront and order-request experience for Kigali, Rwanda.",
+  "description": "DODOX Furniture — premium furniture storefront and order-request experience for Kigali, Rwanda.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "verify": "tsx scripts/verify-logic.ts"
+    "verify": "tsx scripts/verify-logic.ts",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:prod": "wrangler d1 migrations apply DB --remote --env production",
+    "db:seed:local": "tsx scripts/seed-d1-local.ts",
+    "db:bootstrap-admin": "tsx scripts/bootstrap-admin.ts",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare preview",
+    "cf:deploy:prod": "opennextjs-cloudflare deploy --env production"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@opennextjs/cloudflare": "^1.20.18",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.4",
     "lucide-react": "^0.552.0",
     "next": "15.5.29",
     "react": "19.2.9",
@@ -25,6 +36,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261124.1",
     "@eslint/eslintrc": "^3.3.1",
     "@fontsource-variable/inter": "^5.2.7",
     "@fontsource/cormorant-garamond": "^5.2.7",
@@ -33,10 +45,13 @@
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.1",
     "eslint-config-next": "15.5.29",
     "tailwindcss": "^4.1.16",
     "tsx": "^4.23.15",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1",
+    "wrangler": "^4.167.0"
   }
 }

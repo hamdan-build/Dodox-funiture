@@ -30,12 +30,18 @@ export const availabilityOptions: {
     label: "Pre-order",
     helper: "Next production run",
   },
+  {
+    value: "out-of-stock",
+    label: "Out of Stock",
+    helper: "Currently unavailable",
+  },
 ];
 
 export const availabilityLabels: Record<Availability, string> = {
   "in-stock": "In Kigali stock",
   "made-to-order": "Made to order",
   "pre-order": "Pre-order",
+  "out-of-stock": "Out of stock",
 };
 
 export interface CatalogFilters {

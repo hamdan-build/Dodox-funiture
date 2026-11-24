@@ -1,0 +1,89 @@
+{
+  // -------------------------------------------------------------------------
+  // DODOX Furniture — Cloudflare Workers Configuration (OpenNext Adapter)
+  //
+  // IMPORTANT FOR PRODUCTION:
+  // No Cloudflare account IDs, production database IDs, or secrets are
+  // hardcoded here. Follow docs/DEPLOYMENT_CLOUDFLARE.md to create your D1
+  // database, R2 bucket, and Worker secrets before running `cf:deploy:prod`.
+  // -------------------------------------------------------------------------
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dodox-furniture",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "dodox-furniture"
+    }
+  ],
+
+  // Default / Local Development Bindings (persisted in .wrangler/state/v3)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dodox-furniture-dev",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_BUCKET",
+      "bucket_name": "dodox-furniture-media-dev"
+    }
+  ],
+
+  "vars": {
+    "APP_ENV": "development",
+    "NEXT_PUBLIC_SITE_URL": "http://localhost:3000"
+  },
+
+  // Scheduled maintenance trigger (cleans expired sessions, reset tokens & rate limits)
+  "triggers": {
+    "crons": ["0 3 * * *"]
+  },
+
+  // -------------------------------------------------------------------------
+  // Production Environment Override (`wrangler ... --env production`)
+  // Replace `<REPLACE_WITH_PRODUCTION_D1_DATABASE_ID>` after running:
+  //   npx wrangler d1 create dodox-furniture-prod
+  // -------------------------------------------------------------------------
+  "env": {
+    "production": {
+      "name": "dodox-furniture-prod",
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "dodox-furniture-prod"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dodox-furniture-prod",
+          "database_id": "<REPLACE_WITH_PRODUCTION_D1_DATABASE_ID>",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA_BUCKET",
+          "bucket_name": "dodox-furniture-media-prod"
+        }
+      ],
+      "vars": {
+        "APP_ENV": "production",
+        "NEXT_PUBLIC_SITE_URL": "https://dodox.rw"
+      }
+    }
+  }
+}

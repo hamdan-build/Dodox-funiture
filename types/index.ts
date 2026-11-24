@@ -3,11 +3,17 @@ export type CategorySlug =
   | "bedroom"
   | "dining-room"
   | "home-office"
-  | "outdoor";
+  | "outdoor"
+  | (string & {});
 
-export type Availability = "in-stock" | "made-to-order" | "pre-order";
+export type Availability =
+  | "in-stock"
+  | "made-to-order"
+  | "pre-order"
+  | "out-of-stock";
 
 export interface Category {
+  id?: string;
   slug: CategorySlug;
   name: string;
   shortName: string;
@@ -15,6 +21,9 @@ export interface Category {
   description: string;
   image: string;
   alt: string;
+  parentId?: string | null;
+  sortOrder?: number;
+  isPublished?: boolean;
 }
 
 export interface ImageAsset {
@@ -68,9 +77,11 @@ export interface ProductReview {
 
 export interface Product {
   id: string;
+  sku?: string;
   slug: string;
   name: string;
   category: CategorySlug;
+  categoryId?: string;
   subtitle: string;
   description: string;
   story: string;
@@ -91,7 +102,13 @@ export interface Product {
   care: string[];
   seating?: number;
   collection?: string;
+  collectionId?: string | null;
+  collectionSlug?: string | null;
   tags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  status?: "draft" | "published" | "archived";
+  stockQuantity?: number;
 }
 
 export interface SelectedVariant {
@@ -180,27 +197,56 @@ export interface OrderLine {
   variantSummary: string;
 }
 
+export type OrderStatus =
+  | "received"
+  | "under_review"
+  | "confirmed"
+  | "in_production"
+  | "ready"
+  | "out_for_delivery"
+  | "delivered"
+  | "cancelled"
+  | "rejected"
+  | "atelier-review"
+  | "in-production";
+
+export interface OrderStatusEvent {
+  status: string;
+  note?: string | null;
+  createdAt: string;
+}
+
 export interface OrderRecord {
   reference: string;
+  trackingToken?: string;
   createdAt: string;
-  status: "received" | "atelier-review" | "in-production" | "ready";
+  status: OrderStatus;
+  paymentStatus?: string;
   customer: CustomerDetails;
   lines: OrderLine[];
   totals: CartTotals;
   careProtection: boolean;
   promoCode?: string;
+  statusHistory?: OrderStatusEvent[];
 }
 
 export interface JournalPost {
+  id?: string;
   slug: string;
   title: string;
   excerpt: string;
-  category: "Atelier Notes" | "Material Studies" | "Room Stories" | "Care & Longevity";
+  category:
+    | "Atelier Notes"
+    | "Material Studies"
+    | "Room Stories"
+    | "Care & Longevity"
+    | (string & {});
   readTime: string;
   date: string;
   image: string;
   alt: string;
   featured?: boolean;
+  isSample?: boolean;
   body: { type: "paragraph" | "heading" | "quote"; text: string }[];
 }
 
