@@ -7,6 +7,12 @@ import {
   AdminEmptyState,
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminDangerIconBtn,
+  adminDarkBtn,
+  adminInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { formatRwf } from "@/lib/utils";
@@ -190,7 +196,7 @@ export default function AdminPromotionsPage() {
           <button
             type="button"
             onClick={openNewCoupon}
-            className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+            className={adminDarkBtn}
           >
             <Plus size={13} /> New Coupon Code
           </button>
@@ -267,14 +273,14 @@ export default function AdminPromotionsPage() {
                       <button
                         type="button"
                         onClick={() => openEditCoupon(c)}
-                        className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                        className={adminCompactBtn}
                       >
                         <Edit2 size={11} /> Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => void handleDeleteCoupon(c.id, c.code)}
-                        className="inline-flex h-7 items-center border border-line bg-canvas px-2 text-muted hover:border-[#8b3528] hover:text-[#8b3528]"
+                        className={adminDangerIconBtn}
                         aria-label={`Delete ${c.code}`}
                       >
                         <Trash2 size={12} />
@@ -325,7 +331,7 @@ export default function AdminPromotionsPage() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="KIGALIVIP"
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 font-mono text-[12.5px] uppercase text-ink"
+                className={`mt-1 font-mono uppercase ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -338,7 +344,7 @@ export default function AdminPromotionsPage() {
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="Showroom House Courtesy"
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -353,7 +359,7 @@ export default function AdminPromotionsPage() {
                 onChange={(e) =>
                   setDiscountType(e.target.value as "fixed" | "percent")
                 }
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminSelectClass}`}
               >
                 <option value="fixed">Fixed Amount (RWF)</option>
                 <option value="percent">Percentage (%)</option>
@@ -370,7 +376,7 @@ export default function AdminPromotionsPage() {
                 max={discountType === "percent" ? 100 : undefined}
                 value={value}
                 onChange={(e) => setValue(Number(e.target.value) || 0)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -385,7 +391,7 @@ export default function AdminPromotionsPage() {
                 min={0}
                 value={minimumSubtotal}
                 onChange={(e) => setMinimumSubtotal(Number(e.target.value) || 0)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -398,7 +404,7 @@ export default function AdminPromotionsPage() {
                 value={maximumDiscount}
                 onChange={(e) => setMaximumDiscount(e.target.value)}
                 placeholder="Optional"
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -411,7 +417,7 @@ export default function AdminPromotionsPage() {
                 value={usageLimit}
                 onChange={(e) => setUsageLimit(e.target.value)}
                 placeholder="Unlimited"
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -424,7 +430,7 @@ export default function AdminPromotionsPage() {
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
 
@@ -434,6 +440,7 @@ export default function AdminPromotionsPage() {
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
+                className="accent-bronze"
               />
               Active at checkout
             </label>
@@ -442,6 +449,7 @@ export default function AdminPromotionsPage() {
                 type="checkbox"
                 checked={isDemo}
                 onChange={(e) => setIsDemo(e.target.checked)}
+                className="accent-bronze"
               />
               Mark as public Demo Promo Code
             </label>
@@ -451,14 +459,14 @@ export default function AdminPromotionsPage() {
             <button
               type="button"
               onClick={() => setCouponModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               {saving ? "Saving..." : "Save Coupon"}
             </button>

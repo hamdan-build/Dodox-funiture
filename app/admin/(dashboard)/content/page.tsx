@@ -8,6 +8,15 @@ import {
   AdminEmptyState,
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminDangerIconBtn,
+  adminDarkBtn,
+  adminIconBtn,
+  adminInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTabClass,
+  adminTextareaClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
@@ -258,7 +267,7 @@ export default function AdminContentPage() {
             <button
               type="button"
               onClick={openNewJournal}
-              className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               <Plus size={13} /> New Journal Story
             </button>
@@ -266,7 +275,7 @@ export default function AdminContentPage() {
             <button
               type="button"
               onClick={() => setTestModal(true)}
-              className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               <Plus size={13} /> Add Testimonial
             </button>
@@ -274,7 +283,7 @@ export default function AdminContentPage() {
             <button
               type="button"
               onClick={() => setFaqModal(true)}
-              className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               <Plus size={13} /> Add FAQ
             </button>
@@ -282,7 +291,7 @@ export default function AdminContentPage() {
         }
       />
 
-      <div className="mb-5 flex gap-1.5 border-b border-line pb-3">
+      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-line pb-3" role="tablist" aria-label="Editorial content sections">
         {(
           [
             ["journal", `Journal Articles (${journal.length})`],
@@ -293,12 +302,10 @@ export default function AdminContentPage() {
           <button
             key={k}
             type="button"
+            role="tab"
+            aria-selected={tab === k}
             onClick={() => setTab(k)}
-            className={`h-8 px-3.5 text-[10.5px] uppercase tracking-[0.14em] ${
-              tab === k
-                ? "bg-ink text-canvas"
-                : "border border-line bg-parchment text-ink-soft"
-            }`}
+            className={adminTabClass(tab === k)}
           >
             {label}
           </button>
@@ -346,21 +353,23 @@ export default function AdminContentPage() {
                       <Link
                         href={`/journal/${post.slug}`}
                         target="_blank"
-                        className="inline-flex h-7 items-center border border-line bg-canvas px-2 text-muted hover:text-ink"
+                        aria-label={`Open ${post.title}`}
+                        className={adminIconBtn}
                       >
                         <ExternalLink size={11} />
                       </Link>
                       <button
                         type="button"
                         onClick={() => openEditJournal(post)}
-                        className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                        className={adminCompactBtn}
                       >
                         <Edit2 size={11} /> Edit
                       </button>
                       <button
                         type="button"
+                        aria-label={`Delete ${post.title}`}
                         onClick={() => void handleDelete("journal", post.id)}
-                        className="inline-flex h-7 items-center border border-line bg-canvas px-2 text-muted hover:text-[#8b3528]"
+                        className={adminDangerIconBtn}
                       >
                         <Trash2 size={12} />
                       </button>
@@ -387,8 +396,9 @@ export default function AdminContentPage() {
                 </span>
                 <button
                   type="button"
+                  aria-label={`Remove collector story from ${t.author}`}
                   onClick={() => void handleDelete("testimonial", t.id)}
-                  className="text-muted hover:text-[#8b3528]"
+                  className={adminDangerIconBtn}
                 >
                   <Trash2 size={13} />
                 </button>
@@ -417,8 +427,9 @@ export default function AdminContentPage() {
                 </div>
                 <button
                   type="button"
+                  aria-label={`Delete FAQ: ${f.question}`}
                   onClick={() => void handleDelete("faq", f.id)}
-                  className="text-muted hover:text-[#8b3528]"
+                  className={`${adminDangerIconBtn} shrink-0`}
                 >
                   <Trash2 size={13} />
                 </button>
@@ -446,7 +457,7 @@ export default function AdminContentPage() {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -458,7 +469,7 @@ export default function AdminContentPage() {
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -469,7 +480,7 @@ export default function AdminContentPage() {
                 type="text"
                 value={readTime}
                 onChange={(e) => setReadTime(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -481,7 +492,7 @@ export default function AdminContentPage() {
                 onChange={(e) =>
                   setStatus(e.target.value as "published" | "draft")
                 }
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminSelectClass}`}
               >
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
@@ -497,7 +508,7 @@ export default function AdminContentPage() {
               required
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <label className="block">
@@ -509,7 +520,7 @@ export default function AdminContentPage() {
               required
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
-              className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] text-ink"
+              className={`mt-1 ${adminTextareaClass}`}
             />
           </label>
           <label className="block">
@@ -520,7 +531,7 @@ export default function AdminContentPage() {
               rows={7}
               value={bodyText}
               onChange={(e) => setBodyText(e.target.value)}
-              className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] leading-relaxed text-ink"
+              className={`mt-1 ${adminTextareaClass}`}
             />
           </label>
           <label className="flex items-center gap-2 text-[12px] text-ink">
@@ -528,6 +539,7 @@ export default function AdminContentPage() {
               type="checkbox"
               checked={featured}
               onChange={(e) => setFeatured(e.target.checked)}
+              className="accent-bronze"
             />
             Feature at top of /journal
           </label>
@@ -535,14 +547,14 @@ export default function AdminContentPage() {
             <button
               type="button"
               onClick={() => setJournalModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               {saving ? "Saving..." : "Save Entry"}
             </button>
@@ -566,7 +578,7 @@ export default function AdminContentPage() {
               required
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
-              className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] text-ink"
+              className={`mt-1 ${adminTextareaClass}`}
             />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -579,7 +591,7 @@ export default function AdminContentPage() {
                 required
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -591,7 +603,7 @@ export default function AdminContentPage() {
                 required
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -605,21 +617,21 @@ export default function AdminContentPage() {
               value={pieceName}
               onChange={(e) => setPieceName(e.target.value)}
               placeholder="Imanzi Bouclé Sofa"
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <div className="flex justify-end gap-2 border-t border-line pt-4">
             <button
               type="button"
               onClick={() => setTestModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               Publish Story
             </button>
@@ -643,7 +655,7 @@ export default function AdminContentPage() {
               required
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <label className="block">
@@ -655,21 +667,21 @@ export default function AdminContentPage() {
               required
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] text-ink"
+              className={`mt-1 ${adminTextareaClass}`}
             />
           </label>
           <div className="flex justify-end gap-2 border-t border-line pt-4">
             <button
               type="button"
               onClick={() => setFaqModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               Publish FAQ
             </button>

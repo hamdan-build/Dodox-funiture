@@ -7,6 +7,14 @@ import {
   AdminEmptyState,
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminDarkBtn,
+  adminFilterPillClass,
+  adminInputClass,
+  adminSearchInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTextareaClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { formatRwf } from "@/lib/utils";
@@ -140,20 +148,17 @@ export default function AdminAtelierEnquiriesPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search reference, client, or piece type..."
-            className="h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink focus:border-ink focus:outline-none"
+            className={adminSearchInputClass}
           />
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Commission status filters">
           {["all", ...ATELIER_STATUSES].map((st) => (
             <button
               key={st}
               type="button"
+              aria-pressed={statusFilter === st}
               onClick={() => setStatusFilter(st)}
-              className={`h-8 px-2.5 text-[9.5px] uppercase tracking-[0.13em] ${
-                statusFilter === st
-                  ? "bg-ink text-canvas"
-                  : "border border-line bg-parchment text-muted hover:text-ink"
-              }`}
+              className={adminFilterPillClass(statusFilter === st)}
             >
               {st.replace(/_/g, " ")}
             </button>
@@ -225,7 +230,7 @@ export default function AdminAtelierEnquiriesPage() {
                     <button
                       type="button"
                       onClick={() => openBrief(row)}
-                      className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                      className={adminCompactBtn}
                     >
                       <Compass size={11} /> Manage
                     </button>
@@ -281,7 +286,7 @@ export default function AdminAtelierEnquiriesPage() {
               <p className="text-[10px] uppercase tracking-[0.14em] text-muted">
                 Client Brief
               </p>
-              <p className="mt-1 whitespace-pre-wrap border border-line/70 bg-canvas p-3 text-[12.5px] leading-relaxed text-ink">
+              <p className="mt-1 whitespace-pre-wrap border border-line/70 bg-ivory p-3 text-[12.5px] leading-relaxed text-ink">
                 {selected.description}
               </p>
             </div>
@@ -298,7 +303,7 @@ export default function AdminAtelierEnquiriesPage() {
                       href={url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 border border-line bg-canvas px-3 py-1.5 text-[11px] text-ink hover:border-bronze"
+                      className={adminCompactBtn}
                     >
                       Reference {idx + 1} <ExternalLink size={11} />
                     </a>
@@ -315,7 +320,7 @@ export default function AdminAtelierEnquiriesPage() {
                 <select
                   value={nextStatus}
                   onChange={(e) => setNextStatus(e.target.value)}
-                  className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                  className={`mt-1 ${adminSelectClass}`}
                 >
                   {ATELIER_STATUSES.map((st) => (
                     <option key={st} value={st}>
@@ -335,7 +340,7 @@ export default function AdminAtelierEnquiriesPage() {
                   value={quotedAmount}
                   onChange={(e) => setQuotedAmount(e.target.value)}
                   placeholder="e.g. 2450000"
-                  className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                  className={`mt-1 ${adminInputClass}`}
                 />
               </label>
             </div>
@@ -349,7 +354,7 @@ export default function AdminAtelierEnquiriesPage() {
                 value={internalNotes}
                 onChange={(e) => setInternalNotes(e.target.value)}
                 placeholder="Timber board-feet estimate, lead time, showroom meeting notes..."
-                className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] text-ink"
+                className={`mt-1 ${adminTextareaClass}`}
               />
             </label>
 
@@ -357,14 +362,14 @@ export default function AdminAtelierEnquiriesPage() {
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+                className={adminSecondaryBtn}
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+                className={adminDarkBtn}
               >
                 {saving ? "Saving..." : "Save Commission"}
               </button>

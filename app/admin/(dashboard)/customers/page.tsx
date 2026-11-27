@@ -7,6 +7,9 @@ import { adminFetch, ClientApiError } from "@/components/admin/api-client";
 import {
   AdminEmptyState,
   AdminPageHeader,
+  adminCompactBtn,
+  adminFilterPillClass,
+  adminSearchInputClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { formatRwf } from "@/lib/utils";
@@ -83,10 +86,10 @@ export default function AdminCustomersPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, email, phone, or city..."
-            className="h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink focus:border-ink focus:outline-none"
+            className={adminSearchInputClass}
           />
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Customer segment filters">
           {[
             ["all", "All Clients"],
             ["vip", "VIP Collectors (≥ 2.5M RWF)"],
@@ -95,12 +98,9 @@ export default function AdminCustomersPage() {
             <button
               key={k}
               type="button"
+              aria-pressed={filter === k}
               onClick={() => setFilter(k)}
-              className={`h-8 px-3 text-[10px] uppercase tracking-[0.13em] ${
-                filter === k
-                  ? "bg-ink text-canvas"
-                  : "border border-line bg-parchment text-muted hover:text-ink"
-              }`}
+              className={adminFilterPillClass(filter === k)}
             >
               {label}
             </button>
@@ -177,7 +177,7 @@ export default function AdminCustomersPage() {
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/admin/customers/${c.id}`}
-                      className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                      className={adminCompactBtn}
                     >
                       Open <ArrowRight size={11} />
                     </Link>

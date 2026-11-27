@@ -322,7 +322,7 @@ export function AdminShell({
         <button
           type="button"
           onClick={() => setMobileOpen(false)}
-          className="text-ivory/70 hover:text-ivory lg:hidden"
+          className="flex h-8 w-8 items-center justify-center border border-ivory/15 text-ivory/80 transition-colors hover:border-bronze hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15 lg:hidden"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -337,7 +337,7 @@ export function AdminShell({
           if (visibleItems.length === 0) return null;
           return (
             <div key={group.title}>
-              <p className="mb-1.5 px-2.5 text-[9px] font-medium uppercase tracking-[0.22em] text-ivory/40">
+              <p className="mb-1.5 px-2.5 text-[9px] font-medium uppercase tracking-[0.22em] text-ivory/45">
                 {group.title}
               </p>
               <ul className="space-y-0.5">
@@ -347,11 +347,12 @@ export function AdminShell({
                     <li key={item.href}>
                       <Link
                         href={item.href}
+                        aria-current={active ? "page" : undefined}
                         className={cn(
-                          "flex items-center gap-2.5 px-2.5 py-2 text-[12px] transition-colors",
+                          "flex items-center gap-2.5 px-2.5 py-2 text-[12px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze",
                           active
-                            ? "bg-bronze text-ivory font-medium"
-                            : "text-ivory/75 hover:bg-ivory/8 hover:text-ivory",
+                            ? "bg-bronze font-medium text-ivory hover:bg-bronze-dark hover:text-ivory active:bg-bronze-dark"
+                            : "text-ivory/80 hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15",
                         )}
                       >
                         <item.icon size={15} strokeWidth={1.5} />
@@ -370,7 +371,7 @@ export function AdminShell({
         <Link
           href="/"
           target="_blank"
-          className="flex items-center justify-between border border-ivory/15 bg-ivory/5 px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-ivory/80 transition-colors hover:bg-ivory/10 hover:text-ivory"
+          className="flex items-center justify-between border border-ivory/15 bg-ivory/5 px-3 py-2 text-[10px] uppercase tracking-[0.14em] text-ivory/80 transition-colors duration-200 hover:border-bronze/70 hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15"
         >
           <span>Public Storefront</span>
           <ExternalLink size={12} />
@@ -388,7 +389,7 @@ export function AdminShell({
             type="button"
             onClick={handleLogout}
             disabled={loggingOut}
-            className="flex h-8 w-8 shrink-0 items-center justify-center border border-ivory/15 text-ivory/75 transition-colors hover:border-bronze hover:text-ivory"
+            className="flex h-8 w-8 shrink-0 items-center justify-center border border-ivory/15 text-ivory/80 transition-colors duration-200 hover:border-bronze hover:bg-ivory/10 hover:text-ivory active:bg-ivory/15 disabled:opacity-50"
             title="Sign out"
             aria-label="Sign out"
           >
@@ -428,7 +429,7 @@ export function AdminShell({
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="flex h-9 w-9 items-center justify-center border border-line bg-ivory text-ink lg:hidden"
+              className="flex h-9 w-9 items-center justify-center border border-line bg-ivory text-ink transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand lg:hidden"
               aria-label="Open navigation"
             >
               <Menu size={17} />
@@ -450,7 +451,10 @@ export function AdminShell({
                         {seg.replace(/-/g, " ")}
                       </span>
                     ) : (
-                      <Link href={href} className="hover:text-bronze">
+                      <Link
+                        href={href}
+                        className="transition-colors hover:text-bronze"
+                      >
                         {seg.replace(/-/g, " ")}
                       </Link>
                     )}
@@ -463,7 +467,7 @@ export function AdminShell({
           <div className="flex items-center gap-2.5">
             {/* Global Quick Search */}
             <div className="relative">
-              <div className="flex h-9 w-44 items-center gap-2 border border-line bg-ivory px-2.5 sm:w-64">
+              <div className="flex h-9 w-44 items-center gap-2 border border-line bg-ivory px-2.5 transition-colors focus-within:border-bronze focus-within:bg-parchment sm:w-64">
                 <Search size={13} className="shrink-0 text-muted" />
                 <input
                   type="search"
@@ -483,7 +487,7 @@ export function AdminShell({
                       setSearchTerm("");
                       setSearchOpen(false);
                     }}
-                    className="text-muted hover:text-ink"
+                    className="text-muted transition-colors hover:text-ink"
                     aria-label="Clear search"
                   >
                     <X size={12} />
@@ -500,7 +504,7 @@ export function AdminShell({
                     <button
                       type="button"
                       onClick={() => setSearchOpen(false)}
-                      className="text-[10px] text-muted hover:text-ink"
+                      className="px-1.5 py-0.5 text-[10px] text-muted transition-colors hover:bg-shell hover:text-ink"
                     >
                       Close
                     </button>
@@ -516,7 +520,7 @@ export function AdminShell({
                           <Link
                             key={ord.id}
                             href={`/admin/orders/${ord.id}`}
-                            className="mt-1 flex items-center justify-between py-1 hover:text-bronze"
+                            className="mt-1 flex items-center justify-between px-1.5 py-1 text-ink transition-colors hover:bg-shell hover:text-ink"
                           >
                             <span>
                               {ord.reference} · {ord.customerFirstName}{" "}
@@ -539,7 +543,7 @@ export function AdminShell({
                           <Link
                             key={prod.id}
                             href={`/admin/products/${prod.id}`}
-                            className="mt-1 flex items-center justify-between py-1 hover:text-bronze"
+                            className="mt-1 flex items-center justify-between px-1.5 py-1 text-ink transition-colors hover:bg-shell hover:text-ink"
                           >
                             <span className="truncate">{prod.name}</span>
                             <span className="text-[11px] text-muted">
@@ -559,7 +563,7 @@ export function AdminShell({
                           <Link
                             key={c.id}
                             href={`/admin/customers/${c.id}`}
-                            className="mt-1 block py-1 hover:text-bronze"
+                            className="mt-1 block px-1.5 py-1 text-ink transition-colors hover:bg-shell hover:text-ink"
                           >
                             {c.firstName} {c.lastName} · {c.email}
                           </Link>
@@ -576,7 +580,7 @@ export function AdminShell({
                           <Link
                             key={e.id}
                             href="/admin/enquiries/atelier"
-                            className="mt-1 block py-1 hover:text-bronze"
+                            className="mt-1 block px-1.5 py-1 text-ink transition-colors hover:bg-shell hover:text-ink"
                           >
                             {e.reference} · {e.name} ({e.furnitureType})
                           </Link>
@@ -602,7 +606,8 @@ export function AdminShell({
               <button
                 type="button"
                 onClick={() => setNotifOpen((o) => !o)}
-                className="relative flex h-9 w-9 items-center justify-center border border-line bg-ivory text-ink transition-colors hover:border-bronze"
+                aria-expanded={notifOpen}
+                className="relative flex h-9 w-9 items-center justify-center border border-line bg-ivory text-ink transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand"
                 aria-label="Notifications"
               >
                 <Bell size={15} />

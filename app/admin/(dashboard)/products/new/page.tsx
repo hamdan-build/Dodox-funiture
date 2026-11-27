@@ -20,7 +20,7 @@ export default function AdminNewProductPage() {
   }, []);
 
   if (!meta) {
-    return <div className="h-80 animate-pulse border border-stone-200 bg-white" />;
+    return <div className="h-80 animate-pulse border border-line bg-parchment" />;
   }
 
   return (

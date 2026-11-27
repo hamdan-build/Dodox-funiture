@@ -11,8 +11,13 @@ import {
 } from "lucide-react";
 import { adminFetch } from "@/components/admin/api-client";
 import {
+  adminDangerIconBtn,
+  adminDarkBtn,
   AdminEmptyState,
+  adminIconBtn,
+  adminInputClass,
   AdminPageHeader,
+  adminSelectClass,
   ConfirmDialog,
   StatusBadge,
 } from "@/components/admin/ui";
@@ -139,7 +144,7 @@ export default function AdminProductsPage() {
         actions={
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-charcoal-900 px-4 py-2.5 text-xs uppercase tracking-[0.16em] text-ivory-50 hover:bg-charcoal-800"
+            className={adminDarkBtn}
           >
             <Plus className="h-3.5 w-3.5" />
             Add Piece
@@ -148,18 +153,18 @@ export default function AdminProductsPage() {
       />
 
       {/* Filter Bar */}
-      <div className="grid gap-3 border border-stone-200/90 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 border border-line bg-parchment p-4 sm:grid-cols-2 lg:grid-cols-4">
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, SKU, or slug…"
-          className="border border-stone-300 bg-ivory-50 px-3 py-2 text-xs focus:border-charcoal-900 focus:outline-none"
+          className={adminInputClass}
         />
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="border border-stone-300 bg-white px-3 py-2 text-xs"
+          className={adminSelectClass}
         >
           <option value="all">All Categories</option>
           {categories.map((c) => (
@@ -171,7 +176,7 @@ export default function AdminProductsPage() {
         <select
           value={availabilityFilter}
           onChange={(e) => setAvailabilityFilter(e.target.value)}
-          className="border border-stone-300 bg-white px-3 py-2 text-xs"
+          className={adminSelectClass}
         >
           <option value="all">All Availability States</option>
           <option value="in-stock">In Stock</option>
@@ -182,7 +187,7 @@ export default function AdminProductsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-stone-300 bg-white px-3 py-2 text-xs"
+          className={adminSelectClass}
         >
           <option value="all">All Publish States</option>
           <option value="published">Published</option>
@@ -192,7 +197,7 @@ export default function AdminProductsPage() {
       </div>
 
       {loading ? (
-        <div className="h-72 animate-pulse border border-stone-200 bg-white" />
+        <div className="h-72 animate-pulse border border-line bg-parchment" />
       ) : products.length === 0 ? (
         <AdminEmptyState
           title="No products match these filters"
@@ -200,16 +205,16 @@ export default function AdminProductsPage() {
           action={
             <Link
               href="/admin/products/new"
-              className="inline-block bg-charcoal-900 px-4 py-2 text-xs uppercase tracking-[0.16em] text-ivory-50"
+              className={adminDarkBtn}
             >
               Add First Piece
             </Link>
           }
         />
       ) : (
-        <div className="overflow-x-auto border border-stone-200/90 bg-white">
+        <div className="overflow-x-auto border border-line bg-parchment">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-stone-200 bg-ivory-50 text-[10px] uppercase tracking-[0.16em] text-stone-500">
+            <thead className="border-b border-line bg-shell/60 text-[10px] uppercase tracking-[0.16em] text-muted">
               <tr>
                 <th className="px-4 py-3">Piece</th>
                 <th className="px-4 py-3">SKU & Category</th>
@@ -219,27 +224,27 @@ export default function AdminProductsPage() {
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200/70">
+            <tbody className="divide-y divide-line/70">
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-ivory-50/60">
+                <tr key={product.id} className="transition-colors hover:bg-shell/35">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={product.images[0]?.src}
                         alt={product.name}
-                        className="h-12 w-14 shrink-0 border border-stone-200 object-cover"
+                        className="h-12 w-14 shrink-0 border border-line object-cover"
                       />
                       <div>
                         <Link
                           href={`/admin/products/${product.id}`}
-                          className="font-medium text-charcoal-900 hover:underline"
+                          className="font-medium text-ink transition-colors hover:text-bronze hover:underline"
                         >
                           {product.name}
                         </Link>
-                        <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-stone-500">
+                        <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
                           {product.featured && (
-                            <span className="bg-sand-100 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-charcoal-900">
+                            <span className="border border-bronze/30 bg-shell px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-ink">
                               Featured
                             </span>
                           )}
@@ -251,24 +256,24 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-mono text-charcoal-900">{product.sku}</p>
-                    <p className="capitalize text-stone-500">
+                    <p className="font-mono text-ink">{product.sku}</p>
+                    <p className="capitalize text-muted">
                       {product.category.replace(/-/g, " ")}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-ink">
                       {formatRwf(product.price)}
                     </p>
                     {product.compareAtPrice && (
-                      <p className="text-[11px] text-stone-400 line-through">
+                      <p className="text-[11px] text-muted line-through">
                         {formatRwf(product.compareAtPrice)}
                       </p>
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={product.availability} />
-                    <p className="mt-1 text-[11px] text-stone-500">
+                    <p className="mt-1 text-[11px] text-muted">
                       {product.stockQuantity ?? 0} available ·{" "}
                       {product.variants.length} option group
                       {product.variants.length === 1 ? "" : "s"}
@@ -284,7 +289,7 @@ export default function AdminProductsPage() {
                         )
                       }
                       aria-label={`Change status for ${product.name}`}
-                      className="border border-stone-300 bg-white px-2 py-1 text-[11px] capitalize text-charcoal-900"
+                      className="border border-line bg-ivory px-2 py-1 text-[11px] capitalize text-ink transition-colors hover:border-taupe focus:border-bronze focus:outline-none"
                     >
                       <option value="published">Published</option>
                       <option value="draft">Draft</option>
@@ -295,10 +300,11 @@ export default function AdminProductsPage() {
                     <div className="inline-flex items-center gap-1.5">
                       {product.status === "published" && (
                         <Link
-                          href={`/shop/${product.slug}`}
+                          href={`/product/${product.slug}`}
                           target="_blank"
                           title="View on storefront"
-                          className="p-1.5 text-stone-500 hover:text-charcoal-900"
+                          aria-label={`View ${product.name} on storefront`}
+                          className={adminIconBtn}
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                         </Link>
@@ -306,7 +312,8 @@ export default function AdminProductsPage() {
                       <Link
                         href={`/admin/products/${product.id}`}
                         title="Edit piece"
-                        className="p-1.5 text-stone-500 hover:text-charcoal-900"
+                        aria-label={`Edit ${product.name}`}
+                        className={adminIconBtn}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Link>
@@ -316,7 +323,8 @@ export default function AdminProductsPage() {
                           setConfirmTarget({ product, mode: "archive" })
                         }
                         title="Archive piece"
-                        className="p-1.5 text-stone-500 hover:text-clay-500"
+                        aria-label={`Archive ${product.name}`}
+                        className={adminIconBtn}
                       >
                         <Archive className="h-3.5 w-3.5" />
                       </button>
@@ -326,7 +334,8 @@ export default function AdminProductsPage() {
                           setConfirmTarget({ product, mode: "delete" })
                         }
                         title="Delete piece"
-                        className="p-1.5 text-stone-500 hover:text-[#9c3d2c]"
+                        aria-label={`Delete ${product.name}`}
+                        className={adminDangerIconBtn}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>

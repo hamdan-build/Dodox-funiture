@@ -7,8 +7,16 @@ import {
   adminUploadFile,
 } from "@/components/admin/api-client";
 import {
+  adminDangerIconBtn,
+  adminDarkBtn,
+  adminIconBtn,
+  adminInputClass,
   AdminModal,
   AdminPageHeader,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTabClass,
+  adminTextareaClass,
   ConfirmDialog,
   StatusBadge,
 } from "@/components/admin/ui";
@@ -259,7 +267,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                   isPublished: true,
                 })
               }
-              className="inline-flex items-center gap-2 bg-charcoal-900 px-4 py-2.5 text-xs uppercase tracking-[0.16em] text-ivory-50"
+              className={adminDarkBtn}
             >
               <Plus className="h-3.5 w-3.5" />
               New Category
@@ -281,7 +289,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                   productIds: [],
                 })
               }
-              className="inline-flex items-center gap-2 bg-charcoal-900 px-4 py-2.5 text-xs uppercase tracking-[0.16em] text-ivory-50"
+              className={adminDarkBtn}
             >
               <Plus className="h-3.5 w-3.5" />
               New Collection
@@ -291,41 +299,37 @@ export default function AdminCategoriesAndCollectionsPage() {
       />
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-stone-200">
+      <div className="flex flex-wrap gap-1.5 border-b border-line pb-3" role="tablist" aria-label="Taxonomy sections">
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === "categories"}
           onClick={() => setTab("categories")}
-          className={`border-b-2 px-4 py-2.5 text-xs uppercase tracking-[0.16em] transition ${
-            tab === "categories"
-              ? "border-charcoal-900 font-medium text-charcoal-900"
-              : "border-transparent text-stone-500 hover:text-charcoal-900"
-          }`}
+          className={adminTabClass(tab === "categories")}
         >
           Room Categories ({categories.length})
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === "collections"}
           onClick={() => setTab("collections")}
-          className={`border-b-2 px-4 py-2.5 text-xs uppercase tracking-[0.16em] transition ${
-            tab === "collections"
-              ? "border-charcoal-900 font-medium text-charcoal-900"
-              : "border-transparent text-stone-500 hover:text-charcoal-900"
-          }`}
+          className={adminTabClass(tab === "collections")}
         >
           Curated Collections ({collections.length})
         </button>
       </div>
 
       {loading ? (
-        <div className="h-64 animate-pulse border border-stone-200 bg-white" />
+        <div className="h-64 animate-pulse border border-line bg-parchment" />
       ) : tab === "categories" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="flex flex-col overflow-hidden border border-stone-200/90 bg-white"
+              className="flex flex-col overflow-hidden border border-line bg-parchment"
             >
-              <div className="relative h-40 bg-sand-100">
+              <div className="relative h-40 bg-sand/60">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cat.imageUrl}
@@ -341,28 +345,29 @@ export default function AdminCategoriesAndCollectionsPage() {
               <div className="flex flex-1 flex-col justify-between p-4">
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-serif text-lg text-charcoal-900">
+                    <h3 className="font-display text-xl text-ink">
                       {cat.name}
                     </h3>
-                    <span className="font-mono text-[11px] text-stone-500">
+                    <span className="font-mono text-[11px] text-muted">
                       #{cat.sortOrder}
                     </span>
                   </div>
-                  <p className="mt-0.5 font-mono text-[11px] text-stone-400">
+                  <p className="mt-0.5 font-mono text-[11px] text-bronze">
                     /shop?category={cat.slug}
                   </p>
-                  <p className="mt-2 line-clamp-2 text-xs text-stone-600">
+                  <p className="mt-2 line-clamp-2 text-xs text-ink-soft">
                     {cat.tagline || cat.description}
                   </p>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between border-t border-stone-100 pt-3 text-xs">
-                  <span className="text-stone-500">
+                <div className="mt-4 flex items-center justify-between border-t border-line/70 pt-3 text-xs">
+                  <span className="text-muted">
                     {cat.productCount} piece{cat.productCount === 1 ? "" : "s"}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
+                      aria-label={`Edit category ${cat.name}`}
                       onClick={() =>
                         setCatModal({
                           mode: "edit",
@@ -379,12 +384,13 @@ export default function AdminCategoriesAndCollectionsPage() {
                           isPublished: cat.isPublished,
                         })
                       }
-                      className="p-1 text-stone-500 hover:text-charcoal-900"
+                      className={adminIconBtn}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
+                      aria-label={`Delete category ${cat.name}`}
                       onClick={() =>
                         setDeleteTarget({
                           kind: "category",
@@ -392,7 +398,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                           name: cat.name,
                         })
                       }
-                      className="p-1 text-stone-500 hover:text-[#9c3d2c]"
+                      className={adminDangerIconBtn}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -407,16 +413,16 @@ export default function AdminCategoriesAndCollectionsPage() {
           {collections.map((col) => (
             <div
               key={col.id}
-              className="flex flex-col justify-between border border-stone-200/90 bg-white p-5"
+              className="flex flex-col justify-between border border-line bg-parchment p-5"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-serif text-xl text-charcoal-900">
+                  <h3 className="font-display text-2xl text-ink">
                     {col.name}
                   </h3>
                   <div className="flex items-center gap-1.5">
                     {col.isFeatured && (
-                      <span className="bg-sand-100 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-charcoal-900">
+                      <span className="border border-bronze/30 bg-shell px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-ink">
                         Featured
                       </span>
                     )}
@@ -425,21 +431,22 @@ export default function AdminCategoriesAndCollectionsPage() {
                     />
                   </div>
                 </div>
-                <p className="mt-1 font-mono text-[11px] text-stone-400">
+                <p className="mt-1 font-mono text-[11px] text-bronze">
                   /shop?collection={col.slug}
                 </p>
-                <p className="mt-2 text-xs text-stone-600">
+                <p className="mt-2 text-xs text-ink-soft">
                   {col.description || col.tagline || "Curated DODOX collection."}
                 </p>
               </div>
-              <div className="mt-4 flex items-center justify-between border-t border-stone-100 pt-3 text-xs">
-                <span className="text-stone-500">
+              <div className="mt-4 flex items-center justify-between border-t border-line/70 pt-3 text-xs">
+                <span className="text-muted">
                   {col.productCount} assigned piece
                   {col.productCount === 1 ? "" : "s"}
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
+                    aria-label={`Edit collection ${col.name}`}
                     onClick={() =>
                       setColModal({
                         mode: "edit",
@@ -455,12 +462,13 @@ export default function AdminCategoriesAndCollectionsPage() {
                         productIds: col.productIds,
                       })
                     }
-                    className="p-1 text-stone-500 hover:text-charcoal-900"
+                    className={adminIconBtn}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="button"
+                    aria-label={`Delete collection ${col.name}`}
                     onClick={() =>
                       setDeleteTarget({
                         kind: "collection",
@@ -468,7 +476,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                         name: col.name,
                       })
                     }
-                    className="p-1 text-stone-500 hover:text-[#9c3d2c]"
+                    className={adminDangerIconBtn}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -489,7 +497,7 @@ export default function AdminCategoriesAndCollectionsPage() {
           <form onSubmit={handleSaveCategory} className="space-y-3.5">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Name *
                 </label>
                 <input
@@ -499,11 +507,11 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setCatModal({ ...catModal, name: e.target.value })
                   }
-                  className="w-full border border-stone-300 px-3 py-2 text-sm"
+                  className={adminInputClass}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Short Nav Label *
                 </label>
                 <input
@@ -514,14 +522,14 @@ export default function AdminCategoriesAndCollectionsPage() {
                     setCatModal({ ...catModal, shortName: e.target.value })
                   }
                   placeholder="Living"
-                  className="w-full border border-stone-300 px-3 py-2 text-sm"
+                  className={adminInputClass}
                 />
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Slug
                 </label>
                 <input
@@ -530,11 +538,11 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setCatModal({ ...catModal, slug: e.target.value })
                   }
-                  className="w-full border border-stone-300 px-3 py-2 font-mono text-xs"
+                  className={`font-mono ${adminInputClass}`}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Parent Category
                 </label>
                 <select
@@ -542,7 +550,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setCatModal({ ...catModal, parentId: e.target.value })
                   }
-                  className="w-full border border-stone-300 bg-white px-3 py-2 text-xs"
+                  className={adminSelectClass}
                 >
                   <option value="">Top-level</option>
                   {categories
@@ -555,7 +563,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Sort Order
                 </label>
                 <input
@@ -567,13 +575,13 @@ export default function AdminCategoriesAndCollectionsPage() {
                       sortOrder: Number(e.target.value) || 0,
                     })
                   }
-                  className="w-full border border-stone-300 px-3 py-2 text-sm"
+                  className={adminInputClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Tagline
               </label>
               <input
@@ -582,12 +590,12 @@ export default function AdminCategoriesAndCollectionsPage() {
                 onChange={(e) =>
                   setCatModal({ ...catModal, tagline: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 text-sm"
+                className={adminInputClass}
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Description
               </label>
               <textarea
@@ -596,16 +604,16 @@ export default function AdminCategoriesAndCollectionsPage() {
                 onChange={(e) =>
                   setCatModal({ ...catModal, description: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 text-xs"
+                className={adminTextareaClass}
               />
             </div>
 
             <div>
               <div className="mb-1 flex items-center justify-between">
-                <label className="text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="text-[10px] uppercase tracking-[0.14em] text-muted">
                   Hero Image URL *
                 </label>
-                <label className="inline-flex cursor-pointer items-center gap-1 text-xs underline">
+                <label className="inline-flex cursor-pointer items-center gap-1 text-xs text-bronze underline transition-colors hover:text-bronze-dark">
                   <Upload className="h-3 w-3" />
                   Upload to R2
                   <input
@@ -636,33 +644,34 @@ export default function AdminCategoriesAndCollectionsPage() {
                 onChange={(e) =>
                   setCatModal({ ...catModal, imageUrl: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 font-mono text-xs"
+                className={`font-mono ${adminInputClass}`}
               />
             </div>
 
-            <label className="flex items-center gap-2 text-xs text-charcoal-900">
+            <label className="flex items-center gap-2 text-xs text-ink">
               <input
                 type="checkbox"
                 checked={catModal.isPublished}
                 onChange={(e) =>
                   setCatModal({ ...catModal, isPublished: e.target.checked })
                 }
+                className="accent-bronze"
               />
               Published on Storefront
             </label>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 border-t border-line pt-4">
               <button
                 type="button"
                 onClick={() => setCatModal(null)}
-                className="border border-stone-300 px-4 py-2 text-xs uppercase tracking-[0.14em]"
+                className={adminSecondaryBtn}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="bg-charcoal-900 px-5 py-2 text-xs uppercase tracking-[0.14em] text-ivory-50 disabled:opacity-50"
+                className={adminDarkBtn}
               >
                 {busy ? "Saving…" : "Save Category"}
               </button>
@@ -683,7 +692,7 @@ export default function AdminCategoriesAndCollectionsPage() {
           <form onSubmit={handleSaveCollection} className="space-y-3.5">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Collection Name *
                 </label>
                 <input
@@ -693,11 +702,11 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setColModal({ ...colModal, name: e.target.value })
                   }
-                  className="w-full border border-stone-300 px-3 py-2 text-sm"
+                  className={adminInputClass}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+                <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                   Slug
                 </label>
                 <input
@@ -706,13 +715,13 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setColModal({ ...colModal, slug: e.target.value })
                   }
-                  className="w-full border border-stone-300 px-3 py-2 font-mono text-xs"
+                  className={`font-mono ${adminInputClass}`}
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Tagline
               </label>
               <input
@@ -721,12 +730,12 @@ export default function AdminCategoriesAndCollectionsPage() {
                 onChange={(e) =>
                   setColModal({ ...colModal, tagline: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 text-sm"
+                className={adminInputClass}
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Description
               </label>
               <textarea
@@ -735,21 +744,21 @@ export default function AdminCategoriesAndCollectionsPage() {
                 onChange={(e) =>
                   setColModal({ ...colModal, description: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 text-xs"
+                className={adminTextareaClass}
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Assigned Pieces ({colModal.productIds.length})
               </label>
-              <div className="max-h-44 space-y-1.5 overflow-y-auto border border-stone-200 bg-ivory-50 p-3">
+              <div className="max-h-44 space-y-1.5 overflow-y-auto border border-line bg-ivory p-3">
                 {products.map((prod) => {
                   const checked = colModal.productIds.includes(prod.id);
                   return (
                     <label
                       key={prod.id}
-                      className="flex items-center gap-2 text-xs text-charcoal-900"
+                      className="flex items-center gap-2 text-xs text-ink"
                     >
                       <input
                         type="checkbox"
@@ -760,6 +769,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                             : colModal.productIds.filter((x) => x !== prod.id);
                           setColModal({ ...colModal, productIds: next });
                         }}
+                        className="accent-bronze"
                       />
                       <span>{prod.name}</span>
                     </label>
@@ -768,7 +778,7 @@ export default function AdminCategoriesAndCollectionsPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-5 pt-1 text-xs">
+            <div className="flex items-center gap-5 pt-1 text-xs text-ink">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -776,6 +786,7 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setColModal({ ...colModal, isFeatured: e.target.checked })
                   }
+                  className="accent-bronze"
                 />
                 Featured Collection
               </label>
@@ -786,23 +797,24 @@ export default function AdminCategoriesAndCollectionsPage() {
                   onChange={(e) =>
                     setColModal({ ...colModal, isPublished: e.target.checked })
                   }
+                  className="accent-bronze"
                 />
                 Published
               </label>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 border-t border-line pt-4">
               <button
                 type="button"
                 onClick={() => setColModal(null)}
-                className="border border-stone-300 px-4 py-2 text-xs uppercase tracking-[0.14em]"
+                className={adminSecondaryBtn}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busy}
-                className="bg-charcoal-900 px-5 py-2 text-xs uppercase tracking-[0.14em] text-ivory-50 disabled:opacity-50"
+                className={adminDarkBtn}
               >
                 {busy ? "Saving…" : "Save Collection"}
               </button>
