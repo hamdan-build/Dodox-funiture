@@ -5,7 +5,12 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, MapPin, MessageSquarePlus } from "lucide-react";
 import { adminFetch, ClientApiError } from "@/components/admin/api-client";
-import { AdminPageHeader, StatusBadge } from "@/components/admin/ui";
+import {
+  adminDarkBtn,
+  adminInputClass,
+  AdminPageHeader,
+  StatusBadge,
+} from "@/components/admin/ui";
 import { formatRwf } from "@/lib/utils";
 import { useUiStore } from "@/store/ui";
 
@@ -181,7 +186,7 @@ export default function AdminCustomerDetailPage() {
     <div>
       <Link
         href="/admin/customers"
-        className="mb-4 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted hover:text-ink"
+        className="mb-4 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-ink"
       >
         <ArrowLeft size={13} /> Back to Clients
       </Link>
@@ -244,7 +249,7 @@ export default function AdminCustomerDetailPage() {
                 {data.addresses.map((addr) => (
                   <div
                     key={addr.id}
-                    className="border border-line/80 bg-canvas p-3.5 text-[12px]"
+                    className="border border-line/80 bg-ivory p-3.5 text-[12px]"
                   >
                     <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-bronze">
                       <MapPin size={12} /> {addr.label}
@@ -271,18 +276,18 @@ export default function AdminCustomerDetailPage() {
             <h2 className="font-display text-2xl text-ink">
               Internal Concierge Notes
             </h2>
-            <form onSubmit={handleAddNote} className="mt-3 flex gap-2">
+            <form onSubmit={handleAddNote} className="mt-3 flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder="Record showroom swatch preferences, floor access notes, or VIP instructions..."
-                className="h-9 flex-1 border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`flex-1 ${adminInputClass}`}
               />
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+                className={`${adminDarkBtn} shrink-0`}
               >
                 <MessageSquarePlus size={13} /> Add Note
               </button>
@@ -292,7 +297,7 @@ export default function AdminCustomerDetailPage() {
               {data.notes.map((n) => (
                 <div
                   key={n.id}
-                  className="border border-line/70 bg-canvas p-3 text-[12px]"
+                  className="border border-line/70 bg-ivory p-3 text-[12px]"
                 >
                   <p className="text-ink">{n.note}</p>
                   <p className="mt-1 text-[10.5px] text-muted">
@@ -316,7 +321,7 @@ export default function AdminCustomerDetailPage() {
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -327,7 +332,7 @@ export default function AdminCustomerDetailPage() {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -338,7 +343,7 @@ export default function AdminCustomerDetailPage() {
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <div className="grid grid-cols-2 gap-2.5">
@@ -350,7 +355,7 @@ export default function AdminCustomerDetailPage() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                  className={`mt-1 ${adminInputClass}`}
                 />
               </label>
               <label className="block">
@@ -361,7 +366,7 @@ export default function AdminCustomerDetailPage() {
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                  className={`mt-1 ${adminInputClass}`}
                 />
               </label>
             </div>
@@ -371,6 +376,7 @@ export default function AdminCustomerDetailPage() {
                 type="checkbox"
                 checked={acceptsMarketing}
                 onChange={(e) => setAcceptsMarketing(e.target.checked)}
+                className="accent-bronze"
               />
               Opted in to Private Viewings & Journal dispatches
             </label>
@@ -378,7 +384,7 @@ export default function AdminCustomerDetailPage() {
             <button
               type="submit"
               disabled={saving}
-              className="mt-2 h-9 w-full bg-ink text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={`${adminDarkBtn} mt-2 w-full`}
             >
               Save Profile
             </button>

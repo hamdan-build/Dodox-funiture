@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { adminFetch, ClientApiError } from "@/components/admin/api-client";
-import { AdminPageHeader } from "@/components/admin/ui";
+import {
+  adminDarkBtn,
+  adminInputClass,
+  AdminPageHeader,
+} from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
 
 interface SettingEntry {
@@ -136,7 +140,7 @@ export default function AdminSettingsPage() {
                             [setting.key]: e.target.value,
                           }))
                         }
-                        className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                        className={`mt-1.5 ${adminInputClass}`}
                       />
                     </label>
                   ))}
@@ -148,7 +152,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex h-10 items-center gap-2 bg-ink px-6 text-[10.5px] font-medium uppercase tracking-[0.16em] text-canvas hover:bg-bronze disabled:opacity-50"
+              className={`${adminDarkBtn} h-10 px-6`}
             >
               <Save size={14} />
               {saving ? "Saving Configuration..." : "Save Website Settings"}

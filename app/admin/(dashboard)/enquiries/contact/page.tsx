@@ -7,6 +7,13 @@ import {
   AdminEmptyState,
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminDarkBtn,
+  adminFilterPillClass,
+  adminSearchInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTextareaClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
@@ -121,20 +128,17 @@ export default function AdminContactMessagesPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search sender, subject, or reference..."
-            className="h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink focus:border-ink focus:outline-none"
+            className={adminSearchInputClass}
           />
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Message status filters">
           {["all", "new", "open", "replied", "archived"].map((st) => (
             <button
               key={st}
               type="button"
+              aria-pressed={statusFilter === st}
               onClick={() => setStatusFilter(st)}
-              className={`h-8 px-3 text-[10px] uppercase tracking-[0.13em] ${
-                statusFilter === st
-                  ? "bg-ink text-canvas"
-                  : "border border-line bg-parchment text-muted hover:text-ink"
-              }`}
+              className={adminFilterPillClass(statusFilter === st)}
             >
               {st}
             </button>
@@ -198,7 +202,7 @@ export default function AdminContactMessagesPage() {
                     <button
                       type="button"
                       onClick={() => openMessage(row)}
-                      className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                      className={adminCompactBtn}
                     >
                       <MessageSquare size={11} /> View
                     </button>
@@ -218,7 +222,7 @@ export default function AdminContactMessagesPage() {
       >
         {selected ? (
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="border border-line/70 bg-canvas p-4 text-[12.5px] leading-relaxed text-ink whitespace-pre-wrap">
+            <div className="whitespace-pre-wrap border border-line/70 bg-ivory p-4 text-[12.5px] leading-relaxed text-ink">
               {selected.message}
             </div>
 
@@ -241,7 +245,7 @@ export default function AdminContactMessagesPage() {
               <select
                 value={nextStatus}
                 onChange={(e) => setNextStatus(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminSelectClass}`}
               >
                 <option value="new">New</option>
                 <option value="open">Open / In Progress</option>
@@ -258,7 +262,7 @@ export default function AdminContactMessagesPage() {
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="mt-1 w-full border border-line bg-canvas p-3 text-[12px] text-ink"
+                className={`mt-1 ${adminTextareaClass}`}
               />
             </label>
 
@@ -266,14 +270,14 @@ export default function AdminContactMessagesPage() {
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+                className={adminSecondaryBtn}
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+                className={adminDarkBtn}
               >
                 Save Update
               </button>

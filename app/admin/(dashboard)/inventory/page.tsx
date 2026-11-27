@@ -18,6 +18,15 @@ import {
   AdminEmptyState,
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminCompactDarkBtn,
+  adminDarkBtn,
+  adminFilterPillClass,
+  adminInputClass,
+  adminSearchInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTabClass,
   MetricCard,
   StatusBadge,
 } from "@/components/admin/ui";
@@ -330,7 +339,7 @@ export default function AdminInventoryPage() {
             <button
               type="button"
               onClick={() => setSupplierModal(true)}
-              className="inline-flex h-9 items-center gap-1.5 border border-line bg-parchment px-3.5 text-[10.5px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:border-ink"
+              className={adminSecondaryBtn}
             >
               <Plus size={13} /> Supplier
             </button>
@@ -341,7 +350,7 @@ export default function AdminInventoryPage() {
                 setPoInventoryId(data?.items[0]?.id ?? "");
                 setPoModal(true);
               }}
-              className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas transition-colors hover:bg-bronze"
+              className={adminDarkBtn}
             >
               <ClipboardList size={13} /> New Purchase Order
             </button>
@@ -384,7 +393,7 @@ export default function AdminInventoryPage() {
       ) : null}
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Inventory sections">
           {(
             [
               ["stock", "Stock Levels"],
@@ -396,12 +405,10 @@ export default function AdminInventoryPage() {
             <button
               key={key}
               type="button"
+              role="tab"
+              aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`h-8 px-3.5 text-[10.5px] font-medium uppercase tracking-[0.14em] transition-colors ${
-                tab === key
-                  ? "bg-ink text-canvas"
-                  : "border border-line bg-parchment text-ink-soft hover:border-ink"
-              }`}
+              className={adminTabClass(tab === key)}
             >
               {label}
             </button>
@@ -411,9 +418,9 @@ export default function AdminInventoryPage() {
         <button
           type="button"
           onClick={() => void load()}
-          className="inline-flex h-8 items-center gap-1.5 border border-line bg-parchment px-3 text-[10px] uppercase tracking-[0.14em] text-muted hover:text-ink"
+          className={adminFilterPillClass(false)}
         >
-          <RefreshCw size={12} /> Refresh
+          <RefreshCw size={12} className="mr-1.5" /> Refresh
         </button>
       </div>
 
@@ -430,10 +437,10 @@ export default function AdminInventoryPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search SKU, piece name, or warehouse..."
-                className="h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink focus:border-ink focus:outline-none"
+                className={adminSearchInputClass}
               />
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Stock health filters">
               {[
                 ["all", "All SKUs"],
                 ["low", "Low Stock"],
@@ -443,12 +450,9 @@ export default function AdminInventoryPage() {
                 <button
                   key={k}
                   type="button"
+                  aria-pressed={filter === k}
                   onClick={() => setFilter(k)}
-                  className={`h-8 px-3 text-[10px] uppercase tracking-[0.13em] ${
-                    filter === k
-                      ? "bg-bronze text-canvas"
-                      : "border border-line bg-parchment text-muted hover:text-ink"
-                  }`}
+                  className={adminFilterPillClass(filter === k)}
                 >
                   {label}
                 </button>
@@ -536,7 +540,7 @@ export default function AdminInventoryPage() {
                         <button
                           type="button"
                           onClick={() => openAdjust(row)}
-                          className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                          className={adminCompactBtn}
                         >
                           <SlidersHorizontal size={11} /> Adjust
                         </button>
@@ -706,7 +710,7 @@ export default function AdminInventoryPage() {
                         <button
                           type="button"
                           onClick={() => void handleReceivePo(po.id, po.poNumber)}
-                          className="inline-flex h-7 items-center gap-1 bg-ink px-2.5 text-[10px] uppercase tracking-[0.13em] text-canvas hover:bg-bronze"
+                          className={adminCompactDarkBtn}
                         >
                           <Truck size={11} /> Receive Stock
                         </button>
@@ -769,7 +773,7 @@ export default function AdminInventoryPage() {
                   type="number"
                   value={delta}
                   onChange={(e) => setDelta(Number(e.target.value) || 0)}
-                  className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                  className={`mt-1.5 ${adminInputClass}`}
                 />
               </label>
 
@@ -782,7 +786,7 @@ export default function AdminInventoryPage() {
                   onChange={(e) =>
                     setAdjType(e.target.value as typeof adjType)
                   }
-                  className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                  className={`mt-1.5 ${adminSelectClass}`}
                 >
                   <option value="restock">Atelier Restock</option>
                   <option value="audit_correction">Cycle Count Audit</option>
@@ -802,7 +806,7 @@ export default function AdminInventoryPage() {
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="e.g. Completed workshop batch #14"
                 required={delta !== 0}
-                className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1.5 ${adminInputClass}`}
               />
             </label>
 
@@ -816,7 +820,7 @@ export default function AdminInventoryPage() {
                   min={0}
                   value={threshold}
                   onChange={(e) => setThreshold(Number(e.target.value) || 0)}
-                  className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                  className={`mt-1.5 ${adminInputClass}`}
                 />
               </label>
 
@@ -828,7 +832,7 @@ export default function AdminInventoryPage() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="mt-1.5 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                  className={`mt-1.5 ${adminInputClass}`}
                 />
               </label>
             </div>
@@ -838,6 +842,7 @@ export default function AdminInventoryPage() {
                 type="checkbox"
                 checked={allowBackorder}
                 onChange={(e) => setAllowBackorder(e.target.checked)}
+                className="accent-bronze"
               />
               Allow made-to-order requests when showroom stock reaches 0
             </label>
@@ -846,14 +851,14 @@ export default function AdminInventoryPage() {
               <button
                 type="button"
                 onClick={() => setSelectedSku(null)}
-                className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+                className={adminSecondaryBtn}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze disabled:opacity-50"
+                className={adminDarkBtn}
               >
                 {saving ? "Saving..." : "Save Stock Update"}
               </button>
@@ -880,7 +885,7 @@ export default function AdminInventoryPage() {
               value={supName}
               onChange={(e) => setSupName(e.target.value)}
               placeholder="e.g. Nyungwe Sustainable Hardwoods"
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -892,7 +897,7 @@ export default function AdminInventoryPage() {
                 type="text"
                 value={supContact}
                 onChange={(e) => setSupContact(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -904,7 +909,7 @@ export default function AdminInventoryPage() {
                 value={supPhone}
                 onChange={(e) => setSupPhone(e.target.value)}
                 placeholder="+250 788..."
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -916,7 +921,7 @@ export default function AdminInventoryPage() {
               type="text"
               value={supCity}
               onChange={(e) => setSupCity(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <label className="block">
@@ -928,21 +933,21 @@ export default function AdminInventoryPage() {
               value={supMaterials}
               onChange={(e) => setSupMaterials(e.target.value)}
               placeholder="Kiln-dried oak, volcanic stone slabs, Belgian bouclé"
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <div className="flex justify-end gap-2 border-t border-line pt-4">
             <button
               type="button"
               onClick={() => setSupplierModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               Save Supplier
             </button>
@@ -966,7 +971,7 @@ export default function AdminInventoryPage() {
               required
               value={poSupplierId}
               onChange={(e) => setPoSupplierId(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminSelectClass}`}
             >
               <option value="">Select supplier...</option>
               {data?.suppliers.map((s) => (
@@ -985,7 +990,7 @@ export default function AdminInventoryPage() {
               required
               value={poInventoryId}
               onChange={(e) => setPoInventoryId(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+              className={`mt-1 ${adminSelectClass}`}
             >
               {data?.items.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -1006,7 +1011,7 @@ export default function AdminInventoryPage() {
                 required
                 value={poQty}
                 onChange={(e) => setPoQty(Number(e.target.value) || 1)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -1019,7 +1024,7 @@ export default function AdminInventoryPage() {
                 required
                 value={poCost}
                 onChange={(e) => setPoCost(Number(e.target.value) || 0)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12.5px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -1028,14 +1033,14 @@ export default function AdminInventoryPage() {
             <button
               type="button"
               onClick={() => setPoModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !data?.suppliers.length}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze disabled:opacity-50"
+              className={adminDarkBtn}
             >
               Issue PO ({formatRwf(poQty * poCost)})
             </button>

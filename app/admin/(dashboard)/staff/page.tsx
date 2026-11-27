@@ -6,6 +6,13 @@ import { adminFetch, ClientApiError } from "@/components/admin/api-client";
 import {
   AdminModal,
   AdminPageHeader,
+  adminCompactBtn,
+  adminDarkBtn,
+  adminIconBtn,
+  adminInputClass,
+  adminSecondaryBtn,
+  adminSelectClass,
+  adminTabClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
@@ -207,14 +214,14 @@ export default function AdminStaffAndAuditPage() {
           <button
             type="button"
             onClick={() => setCreateModal(true)}
-            className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+            className={adminDarkBtn}
           >
             <Plus size={13} /> Invite Staff Member
           </button>
         }
       />
 
-      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-line pb-3">
+      <div className="mb-5 flex flex-wrap gap-1.5 border-b border-line pb-3" role="tablist" aria-label="Staff governance sections">
         {(
           [
             ["staff", `Staff Accounts (${staff.length})`],
@@ -226,12 +233,10 @@ export default function AdminStaffAndAuditPage() {
           <button
             key={k}
             type="button"
+            role="tab"
+            aria-selected={tab === k}
             onClick={() => setTab(k)}
-            className={`h-8 px-3.5 text-[10.5px] uppercase tracking-[0.14em] ${
-              tab === k
-                ? "bg-ink text-canvas"
-                : "border border-line bg-parchment text-ink-soft"
-            }`}
+            className={adminTabClass(tab === k)}
           >
             {label}
           </button>
@@ -296,15 +301,16 @@ export default function AdminStaffAndAuditPage() {
                           setEditRole(m.roles[0]?.slug ?? "store_manager");
                           setNewPassword("");
                         }}
-                        className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2.5 text-[10px] uppercase tracking-[0.13em] text-ink hover:border-ink"
+                        className={adminCompactBtn}
                       >
                         <KeyRound size={11} /> Role / Key
                       </button>
                       <button
                         type="button"
                         onClick={() => void handleToggleActive(m)}
-                        className="inline-flex h-7 items-center gap-1 border border-line bg-canvas px-2 text-[10px] uppercase tracking-[0.13em] text-muted hover:text-ink"
+                        className={adminIconBtn}
                         title={m.isActive ? "Suspend account" : "Reactivate"}
+                        aria-label={m.isActive ? `Suspend ${m.email}` : `Reactivate ${m.email}`}
                       >
                         {m.isActive ? (
                           <UserX size={12} />
@@ -425,7 +431,7 @@ export default function AdminStaffAndAuditPage() {
                 required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <label className="block">
@@ -437,7 +443,7 @@ export default function AdminStaffAndAuditPage() {
                 required
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
           </div>
@@ -451,7 +457,7 @@ export default function AdminStaffAndAuditPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@dodox.rw"
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <label className="block">
@@ -461,7 +467,7 @@ export default function AdminStaffAndAuditPage() {
             <select
               value={roleSlug}
               onChange={(e) => setRoleSlug(e.target.value)}
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminSelectClass}`}
             >
               {roles.map((r) => (
                 <option key={r.slug} value={r.slug}>
@@ -481,21 +487,21 @@ export default function AdminStaffAndAuditPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 12 characters"
-              className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+              className={`mt-1 ${adminInputClass}`}
             />
           </label>
           <div className="flex justify-end gap-2 border-t border-line pt-4">
             <button
               type="button"
               onClick={() => setCreateModal(false)}
-              className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+              className={adminSecondaryBtn}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+              className={adminDarkBtn}
             >
               {saving ? "Provisioning..." : "Create Account"}
             </button>
@@ -523,7 +529,7 @@ export default function AdminStaffAndAuditPage() {
               <select
                 value={editRole}
                 onChange={(e) => setEditRole(e.target.value)}
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminSelectClass}`}
               >
                 {roles.map((r) => (
                   <option key={r.slug} value={r.slug}>
@@ -541,21 +547,21 @@ export default function AdminStaffAndAuditPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Leave blank to keep current password"
-                className="mt-1 h-9 w-full border border-line bg-canvas px-3 text-[12px] text-ink"
+                className={`mt-1 ${adminInputClass}`}
               />
             </label>
             <div className="flex justify-end gap-2 border-t border-line pt-4">
               <button
                 type="button"
                 onClick={() => setEditTarget(null)}
-                className="h-9 border border-line px-4 text-[10.5px] uppercase tracking-[0.14em] text-muted"
+                className={adminSecondaryBtn}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="h-9 bg-ink px-5 text-[10.5px] uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+                className={adminDarkBtn}
               >
                 Save Security Changes
               </button>

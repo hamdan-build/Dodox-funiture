@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Download, Eye } from "lucide-react";
 import { apiRequest } from "@/components/admin/api-client";
 import {
+  adminCompactBtn,
   AdminEmptyState,
   AdminPageHeader,
   adminInputClass,
@@ -202,7 +203,7 @@ export default function AdminOrdersPage() {
                   <td className="px-4 py-3.5 text-right">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="inline-flex items-center gap-1 border border-line bg-ivory px-2.5 py-1.5 text-[10px] uppercase tracking-[0.14em] text-ink hover:border-bronze"
+                      className={adminCompactBtn}
                     >
                       <Eye size={12} />
                       Manage

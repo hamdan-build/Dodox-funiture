@@ -14,9 +14,16 @@ import {
   adminUploadFile,
 } from "@/components/admin/api-client";
 import {
+  adminDangerIconBtn,
+  adminDarkBtn,
   AdminEmptyState,
+  adminFilterPillClass,
+  adminIconBtn,
+  adminInputClass,
   AdminModal,
   AdminPageHeader,
+  adminSecondaryBtn,
+  adminSelectClass,
   ConfirmDialog,
 } from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
@@ -172,12 +179,12 @@ export default function AdminMediaLibraryPage() {
         title="Media Library"
         description="Upload JPEG, PNG, WebP, or AVIF assets (max 8 MB) directly to Cloudflare R2 with magic-byte validation, alt-text management, and product reference tracking."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <select
               value={uploadFolder}
               onChange={(e) => setUploadFolder(e.target.value)}
               aria-label="Target upload folder"
-              className="border border-stone-300 bg-white px-3 py-2 text-xs text-charcoal-900 focus:border-charcoal-900 focus:outline-none"
+              className="h-9 border border-line bg-parchment px-3 text-xs text-ink transition-colors hover:border-taupe focus:border-bronze focus:outline-none"
             >
               {FOLDERS.filter((f) => f !== "all").map((f) => (
                 <option key={f} value={f}>
@@ -185,7 +192,9 @@ export default function AdminMediaLibraryPage() {
                 </option>
               ))}
             </select>
-            <label className="inline-flex cursor-pointer items-center gap-2 bg-charcoal-900 px-4 py-2 text-xs uppercase tracking-[0.16em] text-ivory-50 hover:bg-charcoal-800">
+            <label
+              className={`cursor-pointer focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-bronze ${adminDarkBtn}`}
+            >
               <Upload className="h-3.5 w-3.5" />
               {uploading ? "Uploading…" : "Upload to R2"}
               <input
@@ -202,18 +211,15 @@ export default function AdminMediaLibraryPage() {
       />
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-stone-200/90 bg-white p-4">
-        <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-line bg-parchment p-4">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Media folder filters">
           {FOLDERS.map((folder) => (
             <button
               key={folder}
               type="button"
+              aria-pressed={folderFilter === folder}
               onClick={() => setFolderFilter(folder)}
-              className={`px-3 py-1.5 text-xs capitalize transition ${
-                folderFilter === folder
-                  ? "bg-charcoal-900 text-ivory-50"
-                  : "border border-stone-200 text-stone-600 hover:border-charcoal-900"
-              }`}
+              className={adminFilterPillClass(folderFilter === folder)}
             >
               {folder}
             </button>
@@ -224,14 +230,14 @@ export default function AdminMediaLibraryPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Filter by filename or alt text…"
-          className="w-full max-w-xs border border-stone-300 bg-ivory-50 px-3 py-1.5 text-sm focus:border-charcoal-900 focus:outline-none"
+          className={`max-w-xs ${adminInputClass}`}
         />
       </div>
 
       {loading ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-56 animate-pulse border border-stone-200 bg-white" />
+            <div key={i} className="h-56 animate-pulse border border-line bg-parchment" />
           ))}
         </div>
       ) : assets.length === 0 ? (
@@ -244,29 +250,29 @@ export default function AdminMediaLibraryPage() {
           {assets.map((asset) => (
             <article
               key={asset.id}
-              className="group flex flex-col overflow-hidden border border-stone-200/90 bg-white"
+              className="group flex flex-col overflow-hidden border border-line bg-parchment"
             >
-              <div className="relative aspect-4/3 overflow-hidden bg-sand-100">
+              <div className="relative aspect-4/3 overflow-hidden bg-sand/60">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={asset.publicUrl}
                   alt={asset.altText || asset.filename}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 />
-                <span className="absolute left-2 top-2 bg-charcoal-900/85 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-ivory-50">
+                <span className="absolute left-2 top-2 bg-ink/85 px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-ivory">
                   {asset.storageDriver.toUpperCase()} · {asset.folder}
                 </span>
               </div>
               <div className="flex flex-1 flex-col justify-between p-3.5">
                 <div>
-                  <p className="truncate text-xs font-medium text-charcoal-900" title={asset.filename}>
+                  <p className="truncate text-xs font-medium text-ink" title={asset.filename}>
                     {asset.filename}
                   </p>
-                  <p className="mt-0.5 line-clamp-1 text-[11px] text-stone-500">
+                  <p className="mt-0.5 line-clamp-1 text-[11px] text-muted">
                     {asset.altText || "No alt text set"}
                   </p>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-stone-100 pt-2.5 text-[11px] text-stone-500">
+                <div className="mt-3 flex items-center justify-between border-t border-line/70 pt-2.5 text-[11px] text-muted">
                   <span>
                     {asset.sizeBytes > 0
                       ? `${Math.max(1, Math.round(asset.sizeBytes / 1024))} KB · `
@@ -278,10 +284,11 @@ export default function AdminMediaLibraryPage() {
                       type="button"
                       onClick={() => copyUrl(asset)}
                       title="Copy asset URL"
-                      className="p-1 text-stone-500 hover:text-charcoal-900"
+                      aria-label={`Copy URL for ${asset.filename}`}
+                      className={adminIconBtn}
                     >
                       {copiedId === asset.id ? (
-                        <Check className="h-3.5 w-3.5 text-forest-600" />
+                        <Check className="h-3.5 w-3.5 text-forest" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
@@ -290,7 +297,8 @@ export default function AdminMediaLibraryPage() {
                       type="button"
                       onClick={() => setEditing({ ...asset })}
                       title="Edit alt text & folder"
-                      className="p-1 text-stone-500 hover:text-charcoal-900"
+                      aria-label={`Edit metadata for ${asset.filename}`}
+                      className={adminIconBtn}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -298,7 +306,8 @@ export default function AdminMediaLibraryPage() {
                       type="button"
                       onClick={() => setDeleting(asset)}
                       title="Delete asset"
-                      className="p-1 text-stone-500 hover:text-[#9c3d2c]"
+                      aria-label={`Delete ${asset.filename}`}
+                      className={adminDangerIconBtn}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -318,19 +327,19 @@ export default function AdminMediaLibraryPage() {
       >
         {editing && (
           <form onSubmit={handleSaveEdit} className="space-y-4">
-            <div className="flex items-center gap-3 border border-stone-200 bg-ivory-50 p-3">
-              <ImageIcon className="h-5 w-5 text-stone-500" />
+            <div className="flex items-center gap-3 border border-line bg-ivory p-3">
+              <ImageIcon className="h-5 w-5 text-bronze" />
               <div className="min-w-0">
-                <p className="truncate text-xs font-medium text-charcoal-900">
+                <p className="truncate text-xs font-medium text-ink">
                   {editing.filename}
                 </p>
-                <p className="truncate font-mono text-[11px] text-stone-500">
+                <p className="truncate font-mono text-[11px] text-muted">
                   {editing.publicUrl}
                 </p>
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Alt Text (Accessibility & SEO)
               </label>
               <input
@@ -339,11 +348,11 @@ export default function AdminMediaLibraryPage() {
                 onChange={(e) =>
                   setEditing({ ...editing, altText: e.target.value })
                 }
-                className="w-full border border-stone-300 px-3 py-2 text-sm focus:border-charcoal-900 focus:outline-none"
+                className={adminInputClass}
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs uppercase tracking-[0.14em] text-stone-600">
+              <label className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-muted">
                 Folder
               </label>
               <select
@@ -351,7 +360,7 @@ export default function AdminMediaLibraryPage() {
                 onChange={(e) =>
                   setEditing({ ...editing, folder: e.target.value })
                 }
-                className="w-full border border-stone-300 bg-white px-3 py-2 text-sm focus:border-charcoal-900 focus:outline-none"
+                className={adminSelectClass}
               >
                 {FOLDERS.filter((f) => f !== "all").map((f) => (
                   <option key={f} value={f}>
@@ -360,18 +369,18 @@ export default function AdminMediaLibraryPage() {
                 ))}
               </select>
             </div>
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 border-t border-line pt-4">
               <button
                 type="button"
                 onClick={() => setEditing(null)}
-                className="border border-stone-300 px-4 py-2 text-xs uppercase tracking-[0.14em] text-stone-700"
+                className={adminSecondaryBtn}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={busyAction}
-                className="bg-charcoal-900 px-5 py-2 text-xs uppercase tracking-[0.14em] text-ivory-50 disabled:opacity-50"
+                className={adminDarkBtn}
               >
                 {busyAction ? "Saving…" : "Save Changes"}
               </button>

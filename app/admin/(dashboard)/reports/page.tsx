@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BarChart3, Boxes, Compass, ShoppingBag } from "lucide-react";
 import { adminFetch, ClientApiError } from "@/components/admin/api-client";
 import {
+  adminFilterPillClass,
   AdminPageHeader,
   MetricCard,
   StatusBadge,
@@ -96,17 +97,14 @@ export default function AdminReportsPage() {
         title="Reports & Analytics"
         description="Executive view of Kigali showroom order pipeline, confirmed RWF volume, inventory valuation, and bespoke Atelier commission funnel."
         actions={
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Reporting window">
             {[30, 90, 365].map((d) => (
               <button
                 key={d}
                 type="button"
+                aria-pressed={days === d}
                 onClick={() => setDays(d)}
-                className={`h-8 px-3 text-[10px] uppercase tracking-[0.14em] ${
-                  days === d
-                    ? "bg-ink text-canvas"
-                    : "border border-line bg-parchment text-muted hover:text-ink"
-                }`}
+                className={adminFilterPillClass(days === d)}
               >
                 Last {d}d
               </button>
@@ -216,7 +214,7 @@ export default function AdminReportsPage() {
                 Concierge & Audience Reach
               </h2>
               <dl className="mt-4 grid grid-cols-2 gap-4 text-[12px]">
-                <div className="border border-line/70 bg-canvas p-3.5">
+                <div className="border border-line/70 bg-ivory p-3.5">
                   <dt className="text-[10px] uppercase tracking-[0.14em] text-muted">
                     CRM Client Profiles
                   </dt>
@@ -224,7 +222,7 @@ export default function AdminReportsPage() {
                     {data.conciergeFunnel.totalCustomers}
                   </dd>
                 </div>
-                <div className="border border-line/70 bg-canvas p-3.5">
+                <div className="border border-line/70 bg-ivory p-3.5">
                   <dt className="text-[10px] uppercase tracking-[0.14em] text-muted">
                     Active Newsletter List
                   </dt>
@@ -232,7 +230,7 @@ export default function AdminReportsPage() {
                     {data.conciergeFunnel.newsletterActiveSubscribers}
                   </dd>
                 </div>
-                <div className="border border-line/70 bg-canvas p-3.5">
+                <div className="border border-line/70 bg-ivory p-3.5">
                   <dt className="text-[10px] uppercase tracking-[0.14em] text-muted">
                     Average Confirmed Order
                   </dt>
@@ -240,7 +238,7 @@ export default function AdminReportsPage() {
                     {formatRwf(data.commerce.averageOrderValueRwf)}
                   </dd>
                 </div>
-                <div className="border border-line/70 bg-canvas p-3.5">
+                <div className="border border-line/70 bg-ivory p-3.5">
                   <dt className="text-[10px] uppercase tracking-[0.14em] text-muted">
                     Estimated Included VAT (18%)
                   </dt>

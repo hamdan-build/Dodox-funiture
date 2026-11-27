@@ -10,7 +10,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "dodox-furniture",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2026-11-26",
+  "compatibility_date": "2025-05-05",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 
   "assets": {
@@ -30,7 +30,7 @@
     {
       "binding": "DB",
       "database_name": "dodox-furniture-dev",
-      "database_id": "5ae823d6-80cb-495b-bd2f-37fea5fc94bb",
+      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
   ],
@@ -70,7 +70,7 @@
         {
           "binding": "DB",
           "database_name": "dodox-furniture-prod",
-          "database_id": "5ae823d6-80cb-495b-bd2f-37fea5fc94bb",
+          "database_id": "<REPLACE_WITH_PRODUCTION_D1_DATABASE_ID>",
           "migrations_dir": "migrations"
         }
       ],

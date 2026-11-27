@@ -205,7 +205,7 @@ export function AdminModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center border border-line text-muted transition-colors hover:bg-shell hover:text-ink"
+            className="flex h-8 w-8 items-center justify-center border border-line bg-ivory text-muted transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand active:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
             aria-label="Close dialog"
           >
             <X size={15} />
@@ -252,7 +252,7 @@ export function ConfirmDialog({
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="border border-line bg-ivory px-4 py-2 text-[10px] uppercase tracking-[0.14em] text-ink transition-colors hover:bg-shell"
+          className="inline-flex h-9 items-center justify-center border border-line bg-ivory px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand active:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-55"
         >
           Cancel
         </button>
@@ -261,10 +261,10 @@ export function ConfirmDialog({
           onClick={onConfirm}
           disabled={loading}
           className={cn(
-            "px-4 py-2 text-[10px] font-medium uppercase tracking-[0.14em] text-ivory transition-colors disabled:opacity-60",
+            "inline-flex h-9 items-center justify-center px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-ivory transition-colors duration-200 hover:text-ivory active:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60",
             destructive
-              ? "bg-[#8b3528] hover:bg-[#70291e]"
-              : "bg-bronze hover:bg-bronze-dark",
+              ? "bg-[#8b3528] hover:bg-[#70291e] active:bg-[#5e2118] focus-visible:outline-[#8b3528]"
+              : "bg-bronze hover:bg-bronze-dark active:bg-ink focus-visible:outline-bronze",
           )}
         >
           {loading ? "Processing…" : confirmLabel}
@@ -275,16 +275,52 @@ export function ConfirmDialog({
 }
 
 export const adminInputClass =
-  "h-10 w-full border border-line bg-ivory px-3 text-[12.5px] text-ink placeholder:text-muted/60 focus:border-bronze focus:outline-none";
+  "h-10 w-full border border-line bg-ivory px-3 text-[12.5px] text-ink placeholder:text-muted/60 transition-colors duration-150 hover:border-taupe focus:border-bronze focus:bg-parchment focus:outline-none";
 
 export const adminSelectClass =
-  "h-10 w-full border border-line bg-ivory px-3 text-[12.5px] text-ink focus:border-bronze focus:outline-none";
+  "h-10 w-full border border-line bg-ivory px-3 text-[12.5px] text-ink transition-colors duration-150 hover:border-taupe focus:border-bronze focus:bg-parchment focus:outline-none";
 
 export const adminTextareaClass =
-  "w-full border border-line bg-ivory p-3 text-[12.5px] leading-relaxed text-ink placeholder:text-muted/60 focus:border-bronze focus:outline-none";
+  "w-full border border-line bg-ivory p-3 text-[12.5px] leading-relaxed text-ink placeholder:text-muted/60 transition-colors duration-150 hover:border-taupe focus:border-bronze focus:bg-parchment focus:outline-none";
+
+export const adminSearchInputClass =
+  "h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink placeholder:text-muted/65 transition-colors duration-150 hover:border-taupe focus:border-bronze focus:bg-ivory focus:outline-none";
 
 export const adminPrimaryBtn =
-  "inline-flex h-10 items-center justify-center gap-2 bg-bronze px-4 text-[10px] font-medium uppercase tracking-[0.16em] text-ivory transition-colors hover:bg-bronze-dark disabled:opacity-60";
+  "inline-flex h-9 items-center justify-center gap-1.5 bg-bronze px-4 text-[10.5px] font-medium uppercase tracking-[0.15em] text-ivory transition-colors duration-200 hover:bg-bronze-dark hover:text-ivory active:bg-ink active:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-55";
+
+export const adminDarkBtn =
+  "inline-flex h-9 items-center justify-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.15em] text-ivory transition-colors duration-200 hover:bg-bronze hover:text-ivory active:bg-bronze-dark active:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-55";
 
 export const adminSecondaryBtn =
-  "inline-flex h-10 items-center justify-center gap-2 border border-line bg-parchment px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:bg-shell disabled:opacity-60";
+  "inline-flex h-9 items-center justify-center gap-1.5 border border-line bg-parchment px-3.5 text-[10.5px] font-medium uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand active:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-55";
+
+export const adminCompactBtn =
+  "inline-flex h-7 items-center justify-center gap-1 border border-line bg-ivory px-2.5 text-[10px] font-medium uppercase tracking-[0.13em] text-ink transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand active:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-50";
+
+export const adminCompactDarkBtn =
+  "inline-flex h-7 items-center justify-center gap-1 bg-ink px-2.5 text-[10px] font-medium uppercase tracking-[0.13em] text-ivory transition-colors duration-200 hover:bg-bronze hover:text-ivory active:bg-bronze-dark active:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-50";
+
+export const adminIconBtn =
+  "inline-flex h-7 w-7 items-center justify-center border border-line/85 bg-ivory text-muted transition-colors duration-200 hover:border-bronze hover:bg-shell hover:text-ink active:bg-sand active:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze disabled:pointer-events-none disabled:opacity-40";
+
+export const adminDangerIconBtn =
+  "inline-flex h-7 w-7 items-center justify-center border border-line/85 bg-ivory text-muted transition-colors duration-200 hover:border-[#8b3528]/50 hover:bg-[#f5deda]/70 hover:text-[#8b3528] active:bg-[#f5deda] active:text-[#8b3528] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b3528] disabled:pointer-events-none disabled:opacity-40";
+
+export function adminTabClass(active: boolean): string {
+  return cn(
+    "inline-flex h-8 items-center justify-center gap-1.5 border px-3.5 text-[10.5px] font-medium uppercase tracking-[0.14em] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze",
+    active
+      ? "border-ink bg-ink text-ivory hover:border-bronze-dark hover:bg-bronze-dark hover:text-ivory active:bg-ink active:text-ivory"
+      : "border-line bg-parchment text-ink-soft hover:border-bronze/60 hover:bg-shell hover:text-ink active:bg-sand active:text-ink",
+  );
+}
+
+export function adminFilterPillClass(active: boolean): string {
+  return cn(
+    "inline-flex h-8 items-center justify-center border px-3 text-[10px] font-medium uppercase tracking-[0.13em] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze",
+    active
+      ? "border-bronze bg-bronze text-ivory hover:border-bronze-dark hover:bg-bronze-dark hover:text-ivory active:bg-ink active:text-ivory"
+      : "border-line bg-parchment text-muted hover:border-bronze/60 hover:bg-shell hover:text-ink active:bg-sand active:text-ink",
+  );
+}

@@ -6,6 +6,9 @@ import { adminFetch, ClientApiError } from "@/components/admin/api-client";
 import {
   AdminEmptyState,
   AdminPageHeader,
+  adminDarkBtn,
+  adminFilterPillClass,
+  adminSearchInputClass,
   StatusBadge,
 } from "@/components/admin/ui";
 import { useUiStore } from "@/store/ui";
@@ -61,7 +64,7 @@ export default function AdminNewsletterPage() {
         actions={
           <a
             href="/api/admin/newsletter?export=csv"
-            className="inline-flex h-9 items-center gap-1.5 bg-ink px-4 text-[10.5px] font-medium uppercase tracking-[0.14em] text-canvas hover:bg-bronze"
+            className={adminDarkBtn}
           >
             <Download size={13} /> Export CSV
           </a>
@@ -79,20 +82,17 @@ export default function AdminNewsletterPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by email address..."
-            className="h-9 w-full border border-line bg-parchment pl-9 pr-3 text-[12px] text-ink focus:border-ink focus:outline-none"
+            className={adminSearchInputClass}
           />
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Subscriber status filters">
           {["all", "active", "unsubscribed"].map((st) => (
             <button
               key={st}
               type="button"
+              aria-pressed={statusFilter === st}
               onClick={() => setStatusFilter(st)}
-              className={`h-8 px-3 text-[10px] uppercase tracking-[0.13em] ${
-                statusFilter === st
-                  ? "bg-ink text-canvas"
-                  : "border border-line bg-parchment text-muted hover:text-ink"
-              }`}
+              className={adminFilterPillClass(statusFilter === st)}
             >
               {st}
             </button>
